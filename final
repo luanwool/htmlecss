@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Alterar Cor de Fundo</title>
+  <style> /* abrindo tag de estilo */
+    body {
+      background-color: red; /* Define a cor de fundo para vermelho */
+    }
+	h1 {
+	color: white; /* Define a cor para branco */
+      text-align: center; /* alinha o texto ao centro */
+	}
+	.container {
+      background-color: green;
+      width: 1000px;
+      height: 600px;
+      border: 2px solid white;
+ /* fechando tag de estilo */ </style> 
+</head>
+<body>
+  <h1>Exemplo de Alteração de Cor de Fundo</h1>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+  <div class="container">
+  <h1>Título</h1>
+  <p>Este é um parágrafo dentro da div.</p>
+</div>
+  
+</body>
+</html>
+
+
