@@ -18,6 +18,8 @@ return [
     'media' => [
         'disk' => env('MEDIA_DISK', 'public'),
         'max_upload_kb' => (int) env('MEDIA_MAX_UPLOAD_KB', 6144),
+        // true = uploads em <pasta pública>/storage (hospedagem sem symlink).
+        'public_disk_in_public' => (bool) env('PUBLIC_DISK_IN_PUBLIC', false),
         'widths' => [480, 960, 1600],
         'quality' => 82,
     ],

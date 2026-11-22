@@ -1,0 +1,83 @@
+ZERO 1 BARBEARIA — INSTALAÇÃO DE TESTE NA HOSTINGER (sem VPS, sem SSH)
+=======================================================================
+
+O pacote tem duas pastas:
+  public_html/  → arquivos PÚBLICOS (o que o navegador acessa)
+  zero1/        → o SISTEMA (código, configurações e dados) — NUNCA dentro de public_html
+
+No Gerenciador de Arquivos da Hostinger, o seu site fica em:
+  /home/SEU_USUARIO/domains/SEU_DOMINIO/
+Depois da instalação deve ficar assim:
+  domains/SEU_DOMINIO/public_html/   (conteúdo de public_html do pacote)
+  domains/SEU_DOMINIO/zero1/         (pasta zero1 do pacote)
+
+-----------------------------------------------------------------------
+1) PHP
+   hPanel > Avançado > Configuração PHP:
+   - Versão: 8.3 (ou 8.2 no mínimo)
+   - Extensões ligadas: pdo_mysql, mbstring, intl, gd, fileinfo, zip, bcmath, curl, openssl
+
+2) BANCO DE DADOS
+   hPanel > Bancos de dados > Gerenciamento de banco de dados MySQL:
+   - Crie um banco, um usuário e uma senha. Anote os nomes COMPLETOS
+     (a Hostinger coloca um prefixo, ex.: u123456789_zero1).
+
+3) ENVIAR OS ARQUIVOS
+   hPanel > Arquivos > Gerenciador de Arquivos > domains/SEU_DOMINIO/
+   - Se já existir um site em public_html, renomeie a pasta para public_html_antigo (backup).
+   - Envie o arquivo zero1-hostinger.zip para domains/SEU_DOMINIO/ e clique em "Extrair".
+   - Mova a pasta zero1-hostinger/zero1 para domains/SEU_DOMINIO/zero1
+   - Crie (ou esvazie) domains/SEU_DOMINIO/public_html e mova para dentro dela TODO o
+     conteúdo de zero1-hostinger/public_html — inclusive o arquivo oculto .htaccess
+     (no Gerenciador, ative "Mostrar arquivos ocultos").
+   - Apague a pasta zero1-hostinger e o .zip.
+
+   SUBDOMÍNIO (ex.: teste.seudominio.com.br)? Se o hPanel criou a pasta do subdomínio dentro
+   de public_html (ex.: public_html/teste), coloque o conteúdo de public_html do pacote nela;
+   a pasta zero1 continua em domains/SEU_DOMINIO/zero1 — o sistema a encontra sozinho.
+
+4) CONFIGURAR O .env
+   Abra domains/SEU_DOMINIO/zero1/.env no editor do Gerenciador e preencha:
+   - APP_URL=https://seu-dominio (o endereço exato do teste)
+   - DB_DATABASE, DB_USERNAME, DB_PASSWORD (do passo 2)
+   A APP_KEY já vem preenchida neste pacote — não compartilhe este arquivo.
+
+5) INSTALAR (UMA VEZ) PELO CRON
+   hPanel > Avançado > Cron Jobs > "Personalizado" > a cada minuto (* * * * *), com o comando:
+
+     cd /home/SEU_USUARIO/domains/SEU_DOMINIO/zero1 && /opt/alt/php83/usr/bin/php artisan zero1:install --demo
+
+   (Use php82 no caminho se escolheu PHP 8.2. Seu usuário aparece no topo do Gerenciador de Arquivos.)
+   Espere 1–2 minutos e abra zero1/storage/logs/install.log:
+     a última linha deve ser "OK — instalação concluída". Então APAGUE este Cron Job.
+   Se aparecer "ERRO", leia a mensagem (normalmente senha/nome do banco no .env).
+
+6) AGENDADOR (fica ligado para sempre)
+   Crie outro Cron Job a cada minuto (* * * * *):
+
+     /opt/alt/php83/usr/bin/php /home/SEU_USUARIO/domains/SEU_DOMINIO/zero1/artisan schedule:run
+
+   Ele processa e-mails, lembretes, renovações e conciliação.
+
+7) HTTPS
+   hPanel > Segurança > SSL: ative o certificado e "Forçar HTTPS".
+
+8) TESTAR
+   Abra o site. Entradas de teste (senha demo12345):
+     dono@demo.invalid (painel completo) · gestor@demo.invalid · barbeiro.x@demo.invalid
+     cliente@demo.invalid (sem plano) · assinante@demo.invalid (com plano)
+   O painel fica em /painel.
+
+-----------------------------------------------------------------------
+SE DER ERRO
+   - "Erro 500": veja zero1/storage/logs/laravel-AAAA-MM-DD.log
+   - "Pasta zero1 não encontrada": a pasta zero1 não está em domains/SEU_DOMINIO/zero1
+   - Página sem estilo: faltou mover public_html/build ou o .htaccess
+   - Permissões: pastas 755 e arquivos 644; zero1/storage e zero1/bootstrap/cache precisam
+     permitir escrita (755 costuma bastar na Hostinger).
+
+ESTE É UM AMBIENTE DE TESTE
+   - Dados [DEMO] e pagamentos SIMULADOS; o site pede aos buscadores para não indexar.
+   - Para a versão real: novo banco, APP_ENV=production, ZERO1_DEMO_MODE=false,
+     ALLOW_SIMULATED_PAYMENTS=false, rodar "zero1:install" SEM --demo e criar o
+     proprietário real (php artisan zero1:create-owner, via SSH).

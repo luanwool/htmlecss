@@ -38,6 +38,17 @@ ln -s ~/zero1/public public_html
 
 Nunca coloque `.env`, backups, `storage/logs` ou dumps SQL dentro de `public_html`.
 
+## 1.1 Caminho rápido (teste, sem SSH)
+
+```bash
+./deploy/build-hostinger.sh --teste   # → release/zero1-hostinger.zip
+```
+
+O zip já vem no formato do hPanel (`public_html/` + `zero1/`), com `.env` de homologação (APP_KEY gerada,
+dados demo, pagamentos simulados, uploads direto em `public_html/storage`) e um `LEIA-ME.txt` passo a passo.
+A instalação é feita por um Cron Job único: `php artisan zero1:install --demo` (idempotente; resultado em
+`zero1/storage/logs/install.log`). Sem `--teste`, o pacote sai sem `.env`, para a instalação de produção.
+
 ## 2. Gerar o pacote (na sua máquina ou CI)
 
 Requisitos locais: PHP 8.2+, Composer 2, Node 20+.
