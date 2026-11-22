@@ -27,4 +27,19 @@ return [
         'csp' => env('SECURITY_CSP', true),
         'hsts' => env('SECURITY_HSTS', true),
     ],
+
+    'payments' => [
+        /*
+        | Driver do gateway. Nesta versão só existe "simulated" (nenhum dinheiro real circula).
+        | A Fase seguinte adiciona "mercadopago" implementando App\Services\Payments\PaymentGatewayInterface.
+        */
+        'driver' => env('PAYMENT_GATEWAY', 'simulated'),
+        // Bloqueio de segurança: o simulador não roda em produção, salvo liberação explícita (homologação).
+        'allow_simulated_in_production' => (bool) env('ALLOW_SIMULATED_PAYMENTS', false),
+        'webhook_secret' => env('PAYMENT_WEBHOOK_SECRET', env('APP_KEY')),
+        'simulated' => [
+            'fee_percent' => 4.99,  // taxa fictícia só para exercitar bruto/líquido nos relatórios
+            'card_renewal_outcome' => env('SIMULATED_CARD_RENEWAL', 'approved'), // approved | rejected
+        ],
+    ],
 ];

@@ -14,6 +14,8 @@ class Service extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $attributes = ['buffer_minutes' => 0, 'is_public' => true, 'is_bookable_standalone' => true, 'is_plan_eligible' => false, 'is_active' => true, 'price_is_from' => false];
+
     protected $fillable = [
         'service_category_id', 'name', 'slug', 'description', 'price_cents', 'price_is_from',
         'duration_minutes', 'buffer_minutes', 'min_advance_minutes', 'is_public',

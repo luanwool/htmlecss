@@ -1,5 +1,5 @@
 @props(['title', 'subtitle' => null])
-<x-layouts.public :title="$title" :noindex="true" body-class="bg-ink text-paper">
+<x-layouts.public :title="$title" :noindex="true" body-class="bg-ink text-paper" :sticky-cta="false">
     <section class="container-site grid min-h-[calc(100svh-5rem)] items-center gap-12 py-12 lg:grid-cols-2">
         <div class="hidden lg:block">
             <p class="font-display text-[9rem] leading-none numeral-outline" aria-hidden="true">01</p>

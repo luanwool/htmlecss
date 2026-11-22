@@ -16,5 +16,6 @@ Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3 --backof
 Schedule::command('auth:clear-resets')->daily();
 Schedule::command('queue:prune-failed --hours=720')->daily();
 
-// Fase 3: Schedule::command('zero1:reconcile-payments')->hourly(); (conciliação Mercado Pago)
-// Fase 2: Schedule::command('zero1:send-reminders')->everyFiveMinutes(); (lembretes 24h/2h)
+Schedule::command('zero1:send-reminders')->everyFiveMinutes()->withoutOverlapping();
+Schedule::command('zero1:subscriptions-tick')->hourly()->withoutOverlapping();
+Schedule::command('zero1:reconcile-payments')->dailyAt('04:10')->timezone(config('zero1.timezone'))->withoutOverlapping();

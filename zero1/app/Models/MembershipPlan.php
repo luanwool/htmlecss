@@ -22,6 +22,8 @@ class MembershipPlan extends Model
         'guest_policy', 'no_show_policy', 'cancellation_policy', 'benefits', 'terms',
     ];
 
+    protected $attributes = ['version' => 1, 'all_barbers' => true, 'currency' => 'BRL', 'billing_interval' => 'monthly', 'is_featured' => false];
+
     protected $fillable = [
         'name', 'slug', 'description', 'price_cents', 'currency', 'billing_interval', 'is_featured',
         'is_published', 'usage_mode', 'uses_per_cycle', 'max_future_bookings', 'max_per_day', 'max_per_week',

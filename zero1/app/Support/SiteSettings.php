@@ -46,6 +46,18 @@ class SiteSettings
         'seo.description' => 'text',
         'seo.og_media_id' => 'int',
         'seo.indexable' => 'bool',
+        // Políticas de agenda (padrões técnicos — a barbearia ajusta no painel)
+        'booking.slot_interval' => 'int',
+        'booking.min_advance_minutes' => 'int',
+        'booking.max_advance_days' => 'int',
+        'booking.cancel_min_hours' => 'int',
+        'booking.late_cancel_forfeits' => 'bool',
+        'booking.no_show_consumes_credit' => 'bool',
+        'booking.assignment_policy' => 'string',
+        'booking.max_open_per_customer' => 'int',
+        'booking.unpaid_policy' => 'string',
+        'booking.reminder_hours' => 'string',
+        'booking.walk_in_past_hours' => 'int',
         // Marketing (só carregado após consentimento)
         'marketing.ga4_id' => 'string',
         'marketing.meta_pixel_id' => 'string',

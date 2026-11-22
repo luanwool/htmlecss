@@ -6,9 +6,9 @@
             ['admin.dashboard', [], 'Visão geral', 'home', 'dashboard.view', 'admin.dashboard'],
         ],
         'Operação' => [
-            ['admin.upcoming', ['agenda'], 'Agenda', 'calendar', 'agenda.view_all', null, 2],
-            ['admin.upcoming', ['atendimentos'], 'Atendimentos', 'scissors', 'agenda.manage', null, 4],
-            ['admin.upcoming', ['escalas'], 'Escalas e bloqueios', 'clock', 'schedules.manage', null, 2],
+            ['admin.agenda.index', [], 'Agenda', 'calendar', 'agenda.view_all', 'admin.agenda.*'],
+            ['admin.visits.index', [], 'Atendimentos', 'scissors', 'agenda.manage', 'admin.visits.*'],
+            ['admin.schedules.index', [], 'Escalas e bloqueios', 'clock', 'schedules.manage', 'admin.schedules.*'],
         ],
         'Catálogo' => [
             ['admin.services.index', [], 'Serviços', 'list', 'services.manage', 'admin.services.*'],
@@ -17,11 +17,11 @@
         ],
         'Clientes' => [
             ['admin.customers.index', [], 'Clientes', 'users', 'customers.view', 'admin.customers.*'],
-            ['admin.upcoming', ['assinaturas'], 'Assinaturas', 'card', 'subscriptions.manage', null, 3],
+            ['admin.subscriptions.index', [], 'Assinaturas', 'card', 'subscriptions.manage', 'admin.subscriptions.*'],
         ],
         'Gestão' => [
-            ['admin.upcoming', ['financeiro'], 'Financeiro', 'wallet', 'finance.view', null, 4],
-            ['admin.upcoming', ['relatorios'], 'Relatórios', 'chart', 'reports.view', null, 4],
+            ['admin.finance.index', [], 'Financeiro', 'wallet', 'finance.view', 'admin.finance.*'],
+            ['admin.reports.index', [], 'Relatórios', 'chart', 'reports.view', 'admin.reports.*'],
         ],
         'Site e sistema' => [
             ['admin.content.index', [], 'Conteúdo do site', 'image', 'content.manage', 'admin.content.*|admin.sections.*|admin.media.*|admin.reviews.*|admin.faqs.*|admin.pages.*'],
@@ -54,6 +54,9 @@
             @if (config('zero1.demo_mode'))
                 <p class="mx-5 mb-2 rounded-lg bg-accent/15 px-3 py-1.5 text-xs text-accent">Modo demonstração</p>
             @endif
+            @if (config('zero1.payments.driver') === 'simulated')
+                <p class="mx-5 mb-2 rounded-lg bg-amber-500/15 px-3 py-1.5 text-xs text-amber-300">Pagamentos simulados</p>
+            @endif
             <nav class="flex-1 px-3 pb-6 text-sm" aria-label="Painel">
                 @foreach ($groups as $group => $items)
                     @php $visible = collect($items)->filter(fn ($i) => $u->can($i[4])); @endphp
@@ -61,13 +64,12 @@
                         @if ($group)<p class="eyebrow mt-6 mb-2 px-3 text-[0.62rem] text-stone/70">{{ $group }}</p>@endif
                         @foreach ($visible as $item)
                             @php
-                                $active = $item[5] ? request()->routeIs(...explode('|', $item[5])) : (request()->routeIs('admin.upcoming') && request()->route('module') === ($item[1][0] ?? null));
+                                $active = request()->routeIs(...explode('|', $item[5]));
                             @endphp
                             <a href="{{ route($item[0], $item[1]) }}" @if ($active) aria-current="page" @endif
                                @class(['flex items-center gap-3 rounded-lg px-3 py-2 transition', 'bg-white/10 text-paper' => $active, 'hover:bg-white/5 hover:text-paper' => ! $active])>
                                 <x-icon :name="$item[3]" class="size-[1.1rem] opacity-80" />
                                 <span class="flex-1">{{ $item[2] }}</span>
-                                @isset($item[6])<span class="rounded bg-white/10 px-1.5 text-[0.6rem] text-stone">F{{ $item[6] }}</span>@endisset
                             </a>
                         @endforeach
                     @endif

@@ -47,6 +47,27 @@
             </div>
         </section>
 
+        <section id="agenda" class="card scroll-mt-24">
+            <h2 class="font-semibold">Agenda e políticas</h2>
+            <p class="mt-1 text-sm text-stone">Valores iniciais são padrões técnicos — ajuste conforme as regras reais da barbearia.</p>
+            @php $p = app(\App\Services\Booking\BookingPolicy::class); @endphp
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <x-form.select name="s[booking_slot_interval]" label="Granularidade dos horários" :value="$p->slotInterval()" :options="[5 => '5 min', 10 => '10 min', 15 => '15 min', 20 => '20 min', 30 => '30 min']" />
+                <x-form.input name="s[booking_min_advance_minutes]" type="number" min="0" label="Antecedência mínima (min)" :value="$p->minAdvanceMinutes()" />
+                <x-form.input name="s[booking_max_advance_days]" type="number" min="1" label="Janela máxima de reserva (dias)" :value="$p->maxAdvanceDays()" />
+                <x-form.input name="s[booking_cancel_min_hours]" type="number" min="0" label="Cancelar/reagendar até (horas antes)" :value="$p->cancelMinHours()" />
+                <x-form.input name="s[booking_max_open_per_customer]" type="number" min="1" label="Agendamentos futuros por cliente" :value="$p->maxOpenPerCustomer()" />
+                <x-form.input name="s[booking_reminder_hours]" label="Lembretes por e-mail (horas antes)" :value="implode(',', $p->reminderHours())" hint="Ex.: 24,2" />
+                <x-form.select name="s[booking_assignment_policy]" label="“Qualquer barbeiro disponível”" :value="$p->assignmentPolicy()" :options="['balance' => 'Equilibrar carga do dia', 'first' => 'Primeiro disponível (ordem de cadastro)']" />
+                <x-form.select name="s[booking_unpaid_policy]" label="Agendamentos de plano em mês não pago" :value="$p->unpaidPolicy()" :options="['flag' => 'Manter e sinalizar para regularização', 'cancel' => 'Cancelar e avisar o cliente']" />
+                <x-form.input name="s[booking_walk_in_past_hours]" type="number" min="0" label="Lançamento retroativo de balcão (horas)" :value="$p->walkInPastHours()" />
+            </div>
+            <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                <x-form.checkbox name="booking_late_cancel_forfeits" label="Cancelamento fora do prazo consome o crédito do plano" :checked="$p->lateCancelForfeits()" />
+                <x-form.checkbox name="booking_no_show_consumes_credit" label="Falta (no-show) consome o crédito do plano" :checked="$p->noShowConsumesCredit()" />
+            </div>
+        </section>
+
         <section id="marca" class="card scroll-mt-24">
             <h2 class="font-semibold">Identidade visual</h2>
             <p class="mt-1 text-sm text-stone">A paleta atual é provisória (grafite + off-white + acento). Envie o logo e a cor oficial quando disponíveis.</p>

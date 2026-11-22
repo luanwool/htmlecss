@@ -21,6 +21,9 @@ class ServiceFactory extends Factory
             'buffer_minutes' => 0,
             'is_public' => true,
             'is_active' => true,
+            'is_bookable_standalone' => true,
+            'is_plan_eligible' => false,
+            'min_advance_minutes' => null,
         ];
     }
 }

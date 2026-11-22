@@ -5,11 +5,16 @@ namespace Database\Seeders;
 use App\Enums\PlanUsageMode;
 use App\Enums\Role;
 use App\Models\Barber;
+use App\Models\BarberWorkSchedule;
+use App\Models\CommissionRule;
 use App\Models\Customer;
 use App\Models\MembershipPlan;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\User;
+use App\Services\Club\SubscriptionService;
+use App\Services\Payments\GatewayPayment;
+use App\Services\Payments\SimulatedGateway;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
@@ -69,7 +74,14 @@ class DemoSeeder extends Seeder
                 'specialties' => ['Demonstração'], 'sort_order' => ($i + 1) * 10,
             ]);
             $barber->services()->syncWithoutDetaching([$corte->id, $combo->id, $barba->id]);
+            if (! $barber->schedules()->exists()) {
+                foreach (range(1, 6) as $d) { // seg–sáb, almoço 12–13 (escala FICTÍCIA)
+                    BarberWorkSchedule::create(['barber_id' => $barber->id, 'weekday' => $d, 'starts_at' => '09:00', 'ends_at' => '12:00']);
+                    BarberWorkSchedule::create(['barber_id' => $barber->id, 'weekday' => $d, 'starts_at' => '13:00', 'ends_at' => '19:00']);
+                }
+            }
         }
+        CommissionRule::query()->firstOrCreate(['barber_id' => null, 'service_id' => null], ['percent' => 40, 'plan_visit_cents' => 1000]);
 
         $plan = MembershipPlan::query()->firstOrCreate(['slug' => 'demo-clube-essencial'], [
             'name' => '[DEMO] Clube Essencial', 'description' => 'Plano de demonstração com preço fictício.',
@@ -78,5 +90,13 @@ class DemoSeeder extends Seeder
             'min_days_between_uses' => 5, 'benefits' => ['Benefício de demonstração'], 'sort_order' => 10,
         ]);
         $plan->services()->syncWithoutDetaching([$corte->id]);
+
+        // Assinante demo com o 1º mês "pago" pelo gateway SIMULADO.
+        $member = $mk('[DEMO] Assinante', 'assinante@demo.invalid', Role::Customer);
+        $memberCustomer = $member->customerProfile();
+        if (! $memberCustomer->subscriptions()->exists() && config('zero1.payments.driver') === 'simulated') {
+            $sub = app(SubscriptionService::class)->start($memberCustomer, $plan->fresh(), 'card');
+            app(SimulatedGateway::class)->simulateCheckout($sub->gateway_subscription_id, $sub->cycles()->first()->externalReference(), GatewayPayment::APPROVED);
+        }
     }
 }

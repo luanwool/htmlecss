@@ -72,13 +72,21 @@ A autorização é aplicada **no backend** em cada grupo de rotas (`role:` e `pe
 
 **Dinheiro** sempre em centavos (`int`). **Datas** em UTC no banco (`app.timezone = UTC`) e exibidas/calculadas em `America/Sao_Paulo` (`config/zero1.php`, `App\Support\BusinessTime`).
 
-## 6. Decisões para as próximas fases (já preparadas)
+## 6. Agenda, clube e operação (implementados)
+
+- **Um único motor** (`BookingService` + `AvailabilityService`) atende site, painel, barbeiro e balcão.
+- Disponibilidade por profissional e intervalo contínuo `[início, fim)`; duração efetiva = serviço + intervalo operacional; o atendimento precisa caber inteiro numa janela da escala; folgas, feriados, férias, bloqueios e almoço (lacuna entre períodos) removem horários.
+- **Concorrência:** a linha `barber_day_locks (barbeiro, dia)` é criada fora da transação (autocommit) e travada com `SELECT … FOR UPDATE` dentro dela, em ordem fixa; a checagem de conflito acontece **depois** da trava; deadlocks repetem a transação (3 tentativas). Testado com processos paralelos no MariaDB.
+- **Clube:** snapshot das condições na adesão; ciclos `[início, fim)` em datas locais com `addMonthNoOverflow` (31/01 → 28/02); benefício só com ciclo **pago** cobrindo a data; ledger `reserve/release/consume/forfeit` com unique por agendamento+tipo; webhook → registra evento (unique) → **consulta a API** → aplica estado (idempotente, tolera fora de ordem); conciliação recupera webhooks perdidos.
+- **Operação:** `service_visits` com `appointment_id` único (agendado + concluído = um atendimento); balcão passa pelo motor de conflitos (ocupa a agenda); financeiro separa mensalidade (caixa/recorrente) de corte de plano (produção, sem receita nova); comissões por regra mais específica.
+
+## 7. Decisões originais para as fases (referência)
 
 - **Agenda (Fase 2):** intervalos semiabertos `[início, fim)`; conflito = `novo_início < fim_existente AND novo_fim > início_existente` para o mesmo barbeiro; reserva dentro de transação com `SELECT … FOR UPDATE` em `barber_day_locks (barber_id, date)`; "qualquer disponível" escolhe e trava dentro da mesma transação. Um único motor (`AvailabilityService`/`BookingService`) atende site, painel, barbeiro e balcão.
 - **Clube + Mercado Pago (Fase 3):** `PaymentGatewayInterface` com adaptador `MercadoPagoGateway`; webhooks idempotentes (`payment_webhook_events` com unique no ID externo), confirmação sempre consultando a API, `billing_cycles` + `subscription_entitlement_ledger` (débitos/estornos, nunca contador sobrescrito). **Benefício só é liberado quando o ciclo que cobre a data do atendimento estiver pago.** Pix Automático só será habilitado se a API e a conta comprovarem suporte; caso contrário, Pix por cobrança mensal paga manualmente.
 - **Operação (Fase 4):** `service_visits` como registro único que liga agendamento → execução → consumo de franquia → financeiro, evitando lançamento duplicado.
 
-## 7. Segurança implementada
+## 8. Segurança implementada
 
 - CSP com nonce por request (sem `unsafe-eval`), `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS sob HTTPS.
 - Login: 5 tentativas por e-mail+IP e 20 por IP a cada 15 min; resposta neutra na recuperação de senha; regeneração de sessão.

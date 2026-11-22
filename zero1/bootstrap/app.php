@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Hostinger usa proxy reverso (LiteSpeed/CDN): confia nos cabeçalhos X-Forwarded-*.
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [SecurityHeaders::class, EnsureUserIsActive::class]);
+        $middleware->validateCsrfTokens(except: ['webhooks/*']);
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

@@ -88,7 +88,11 @@ Requisitos locais: PHP 8.2+, Composer 2, Node 20+.
    ```
    /usr/bin/php /home/SEU_USUARIO/zero1/artisan schedule:run >> /dev/null 2>&1
    ```
-   (use o caminho do binário PHP mostrado no hPanel para a versão escolhida). Isso processa a fila de e-mails e as rotinas periódicas.
+   (use o caminho do binário PHP mostrado no hPanel para a versão escolhida). Esse único cron executa:
+   - fila de e-mails (confirmações, lembretes, avisos de cobrança) — a cada minuto;
+   - `zero1:send-reminders` (lembretes 24h/2h) — a cada 5 min;
+   - `zero1:subscriptions-tick` (renovações, atrasos, encerramentos) — de hora em hora;
+   - `zero1:reconcile-payments` (conciliação com o gateway) — diariamente às 04:10.
 6. **SSL/HTTPS:** ative o SSL e "Forçar HTTPS". A aplicação já força `https` em produção e envia HSTS.
 7. **Verificação:** `https://SEU_DOMINIO/up` deve responder 200; abra `/entrar`, entre como proprietário e siga a lista **"Informações reais pendentes"** do painel.
 
@@ -119,7 +123,13 @@ Faça **backup do banco** antes de cada migração (hPanel → Backups, ou `mysq
 - **Teste de restauração** mensal: importe o dump em um banco de homologação e rode `php artisan migrate:status`.
 - Mídias enviadas ficam em `zero1/storage/app/public/media` — inclua essa pasta no backup de arquivos.
 
-## 7. Webhook do Mercado Pago (Fase 3)
+## 7. Pagamentos simulados x reais
+
+Esta versão usa `PAYMENT_GATEWAY=simulated`. Em produção o simulador **recusa-se a rodar**; para uma homologação pública
+use `ALLOW_SIMULATED_PAYMENTS=true` e deixe claro aos testadores que nenhuma cobrança é real. Não venda planos reais
+antes do adaptador do Mercado Pago (`docs/MERCADO_PAGO_PROXIMA_ETAPA.md`).
+
+## 7.1 Webhook do Mercado Pago (próxima etapa)
 
 Exigirá URL **HTTPS** pública (`https://SEU_DOMINIO/webhooks/mercadopago`), segredo do webhook no `.env` (`MERCADOPAGO_WEBHOOK_SECRET`) e credenciais de **teste** em homologação. Nada disso deve ser enviado por mensagem ou commitado.
 

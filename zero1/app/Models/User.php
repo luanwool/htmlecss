@@ -39,6 +39,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Barber::class);
     }
 
+    /** Perfil de cliente do usuário (criado sob demanda, sem duplicar cadastro de balcão). */
+    public function customerProfile(): Customer
+    {
+        if ($this->customer) {
+            return $this->customer;
+        }
+        $customer = Customer::query()->whereNull('user_id')->where('email', $this->email)->first() ?? new Customer;
+        $customer->fill(['user_id' => $this->id, 'name' => $this->name, 'email' => $this->email, 'phone' => $this->phone])->save();
+
+        return $this->setRelation('customer', $customer)->customer;
+    }
+
     public function isOwner(): bool
     {
         return $this->hasRole(Role::Owner->value);

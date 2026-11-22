@@ -110,10 +110,11 @@ class PublicSiteTest extends TestCase
         $this->assertStringNotContainsString('unsafe-eval', $csp);
     }
 
-    public function test_cta_entry_points_do_not_simulate_booking_or_payment(): void
+    public function test_cta_entry_points_require_account_for_confirmation(): void
     {
-        $this->get('/agendar')->assertOk()->assertSee('estará disponível em breve')->assertSee('wa.me/5521973496399', false);
+        $this->get('/agendar')->assertOk()->assertSee('Agende seu horário');
         $plan = MembershipPlan::factory()->create(['is_published' => false]);
-        $this->get(route('plans.subscribe', $plan))->assertNotFound();
+        $this->get(route('plans.subscribe', $plan))->assertRedirect(route('login'));
+        $this->actingAs($this->userWithRole(Role::Customer))->get(route('plans.subscribe', $plan))->assertNotFound();
     }
 }

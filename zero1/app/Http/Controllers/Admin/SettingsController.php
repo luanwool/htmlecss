@@ -55,6 +55,15 @@ class SettingsController extends Controller
             's.seo_description' => ['nullable', 'string', 'max:170'],
             's.marketing_ga4_id' => ['nullable', 'regex:/^G-[A-Z0-9]{4,12}$/'],
             's.marketing_meta_pixel_id' => ['nullable', 'regex:/^\d{8,20}$/'],
+            's.booking_slot_interval' => ['nullable', 'integer', 'in:5,10,15,20,30'],
+            's.booking_min_advance_minutes' => ['nullable', 'integer', 'min:0', 'max:10080'],
+            's.booking_max_advance_days' => ['nullable', 'integer', 'min:1', 'max:180'],
+            's.booking_cancel_min_hours' => ['nullable', 'integer', 'min:0', 'max:168'],
+            's.booking_assignment_policy' => ['nullable', 'in:balance,first'],
+            's.booking_max_open_per_customer' => ['nullable', 'integer', 'min:1', 'max:20'],
+            's.booking_unpaid_policy' => ['nullable', 'in:flag,cancel'],
+            's.booking_reminder_hours' => ['nullable', 'regex:/^\d{1,3}(,\d{1,3})*$/'],
+            's.booking_walk_in_past_hours' => ['nullable', 'integer', 'min:0', 'max:72'],
             'hours' => ['required', 'array'],
             'hours.*.opens_at' => ['nullable', 'date_format:H:i'],
             'hours.*.closes_at' => ['nullable', 'date_format:H:i'],
@@ -73,6 +82,8 @@ class SettingsController extends Controller
         }
         $values['business.hours_confirmed'] = $request->boolean('business_hours_confirmed');
         $values['seo.indexable'] = $request->boolean('seo_indexable');
+        $values['booking.late_cancel_forfeits'] = $request->boolean('booking_late_cancel_forfeits');
+        $values['booking.no_show_consumes_credit'] = $request->boolean('booking_no_show_consumes_credit');
 
         $before = $settings->all();
 

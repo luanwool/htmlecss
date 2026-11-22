@@ -13,6 +13,6 @@ class BarberFactory extends Factory
     {
         $name = 'Profissional '.Str::random(5);
 
-        return ['display_name' => $name, 'slug' => Str::slug($name), 'status' => 'active', 'is_public' => true];
+        return ['display_name' => $name, 'slug' => Str::slug($name), 'status' => 'active', 'is_public' => true, 'accepts_any_assignment' => true, 'sort_order' => 0];
     }
 }

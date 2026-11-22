@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'canonical' => null, 'noindex' => false, 'schema' => null, 'bodyClass' => 'bg-ink text-paper'])
+@props(['title' => null, 'description' => null, 'canonical' => null, 'noindex' => false, 'schema' => null, 'bodyClass' => 'bg-ink text-paper', 'stickyCta' => true])
 @php
     $siteName = $site->businessName();
     $pageTitle = $title ? $title.' · '.$siteName : ($site->get('seo.title') ?: $siteName);
@@ -52,7 +52,8 @@
 
     @include('partials.site-footer', ['logo' => $logo])
 
-    {{-- CTA fixo no celular --}}
+    {{-- CTA fixo no celular (só nas páginas públicas) --}}
+    @if ($stickyCta)
     <div data-sticky-cta class="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink/90 px-4 pb-[max(.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md transition-transform duration-500 data-[hidden]:translate-y-full md:hidden">
         <div class="flex gap-2">
             <a href="{{ route('booking.start') }}" class="btn-accent flex-1">Agendar horário</a>
@@ -63,6 +64,7 @@
             @endif
         </div>
     </div>
+    @endif
 
     @if ($site->get('marketing.ga4_id') || $site->get('marketing.meta_pixel_id'))
         <div data-consent hidden data-ga4="{{ $site->get('marketing.ga4_id') }}" data-pixel="{{ $site->get('marketing.meta_pixel_id') }}"

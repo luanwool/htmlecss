@@ -80,7 +80,9 @@ class AuthorizationTest extends TestCase
             '/painel/conteudo/depoimentos/create', "/painel/conteudo/depoimentos/{$review->id}/edit",
             '/painel/conteudo/faq', "/painel/conteudo/faq/{$faq->id}/edit", '/painel/conteudo/paginas',
             '/painel/configuracoes', '/painel/usuarios', '/painel/usuarios/create', '/painel/cargos',
-            '/painel/lgpd', '/painel/auditoria', '/painel/modulo/agenda', '/painel/modulo/financeiro',
+            '/painel/lgpd', '/painel/auditoria', '/painel/agenda', '/painel/agenda?periodo=7', '/painel/agenda?visao=colunas',
+            '/painel/agenda/novo', '/painel/atendimentos', '/painel/atendimentos/novo', '/painel/escalas', '/painel/assinaturas',
+            '/painel/financeiro', '/painel/relatorios', '/painel/relatorios?periodo=custom&de=2026-01-01&ate=2026-12-31', '/painel/relatorios/planos',
         ];
         foreach (PageSection::all() as $s) {
             $urls[] = "/painel/conteudo/secoes/{$s->id}";
@@ -88,6 +90,6 @@ class AuthorizationTest extends TestCase
         foreach ($urls as $url) {
             $this->get($url)->assertOk();
         }
-        $this->get('/painel/modulo/inexistente')->assertNotFound();
+        $this->get('/painel/agenda/abc')->assertNotFound();
     }
 }
