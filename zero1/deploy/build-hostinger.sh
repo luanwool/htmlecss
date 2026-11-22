@@ -15,7 +15,7 @@ npm ci --no-audit --no-fund >/dev/null
 npm run build >/dev/null
 
 rsync -a --exclude-from=- ./ "$OUT/zero1/" <<'EXCL'
-/.git
+.git
 /node_modules
 /release
 /tests
