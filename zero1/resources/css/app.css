@@ -61,6 +61,9 @@
     .display-md { @apply font-display leading-tight; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 500; text-wrap: balance; }
     .display-xl { text-wrap: balance; }
 
+    /* Cabeçalho da home: transparente sobre o hero e sólido após rolar. */
+    .header-over-hero[data-scrolled] { border-color: rgb(255 255 255 / .1); background: rgb(13 13 14 / .85); backdrop-filter: blur(12px); }
+
     .container-site { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10; }
 
     .btn-accent { @apply btn bg-accent text-accent-ink hover:brightness-110; }

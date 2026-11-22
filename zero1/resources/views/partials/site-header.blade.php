@@ -7,7 +7,7 @@
     ];
     $onHome = request()->routeIs('home');
 @endphp
-<header data-site-header class="group/header sticky top-0 z-50 border-b border-transparent transition-colors duration-500 data-[scrolled]:border-white/10 data-[scrolled]:bg-ink/85 data-[scrolled]:backdrop-blur-md">
+<header data-site-header @class(['group/header sticky top-0 z-50 border-b text-paper transition-colors duration-500', 'header-over-hero border-transparent' => $onHome, 'border-white/10 bg-ink' => ! $onHome]) >
     <div class="container-site flex h-16 items-center justify-between gap-6 md:h-20">
         <a href="{{ route('home') }}" class="flex items-center gap-3" aria-label="{{ $site->businessName() }} — início">
             @if ($logo)

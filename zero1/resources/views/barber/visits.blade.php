@@ -2,8 +2,8 @@
     <x-period-tabs :period="$period->key" />
     <div class="mt-4 grid grid-cols-3 gap-3">
         <div class="card p-4"><p class="text-xs text-stone">Atendimentos</p><p class="font-display text-3xl">{{ $visits->count() }}</p><p class="text-xs text-stone">{{ $visits->where('mode', 'plan')->count() }} de plano</p></div>
-        <div class="card p-4"><p class="text-xs text-stone">Avulsos</p><p class="font-display text-2xl">{{ \App\Support\Money::format($visits->where('mode', 'avulso')->sum('final_cents')) }}</p></div>
-        <div class="card p-4"><p class="text-xs text-stone">Comissão</p><p class="font-display text-2xl">{{ \App\Support\Money::format($visits->sum(fn ($v) => $v->commission?->amount_cents ?? 0)) }}</p></div>
+        <div class="card p-4"><p class="text-xs text-stone">Avulsos</p><p class="whitespace-nowrap font-display text-xl sm:text-2xl">{{ \App\Support\Money::format($visits->where('mode', 'avulso')->sum('final_cents')) }}</p></div>
+        <div class="card p-4"><p class="text-xs text-stone">Comissão</p><p class="whitespace-nowrap font-display text-xl sm:text-2xl">{{ \App\Support\Money::format($visits->sum(fn ($v) => $v->commission?->amount_cents ?? 0)) }}</p></div>
     </div>
     <ul class="mt-6 space-y-2">
         @forelse ($visits as $v)
