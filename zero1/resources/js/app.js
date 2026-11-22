@@ -144,3 +144,14 @@ document.querySelectorAll('[data-count]').forEach((el) => {
     el.addEventListener('input', upd);
     upd();
 });
+
+// Luz que acompanha o cursor nos cards .spotlight (só com mouse; nada muda no toque).
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.addEventListener('pointermove', (e) => {
+        const card = e.target.closest?.('.spotlight');
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        card.style.setProperty('--my', `${e.clientY - r.top}px`);
+    }, { passive: true });
+}

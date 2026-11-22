@@ -43,6 +43,41 @@ class HomeController extends Controller
             'faqs' => Faq::query()->published()->orderBy('sort_order')->get(),
             'hours' => OpeningHour::query()->orderBy('weekday')->get(),
             'schema' => $schema->build(),
+            'live' => $this->liveSlots($services),
         ]);
+    }
+
+    /**
+     * "Agenda ao vivo" do hero: próximos horários realmente livres (mesmo motor da reserva),
+     * para o serviço avulso principal, em até 7 dias. Cache curto para não pesar na home.
+     */
+    private function liveSlots($services): ?array
+    {
+        $service = $services->first(fn ($s) => $s->is_bookable_standalone);
+        if (! $service) {
+            return null;
+        }
+
+        return \Illuminate\Support\Facades\Cache::remember('home.live_slots.'.$service->id, 60, function () use ($service) {
+            $booking = app(\App\Services\Booking\BookingService::class);
+            $today = \App\Support\BusinessTime::now()->startOfDay();
+            for ($d = 0; $d < 7; $d++) {
+                $date = $today->addDays($d);
+                $slots = $booking->availableSlots($service, null, $date);
+                if ($slots) {
+                    return [
+                        'service' => $service->name,
+                        'service_id' => $service->id,
+                        'duration' => $service->formattedDuration(),
+                        'date' => $date->toDateString(),
+                        'day' => $d === 0 ? 'Hoje' : ($d === 1 ? 'Amanhã' : ucfirst($date->locale('pt_BR')->translatedFormat('l'))),
+                        'times' => array_map(fn ($s) => $s['time'], array_slice($slots, 0, 4)),
+                        'count' => count($slots),
+                    ];
+                }
+            }
+
+            return ['service' => $service->name, 'service_id' => $service->id, 'duration' => $service->formattedDuration(), 'times' => [], 'count' => 0];
+        });
     }
 }

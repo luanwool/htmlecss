@@ -32,7 +32,7 @@ class SiteBaseSeeder extends Seeder
             'business.whatsapp_message' => 'Olá! Vim pelo site da Zero 1 Barbearia.',
             'business.maps_url' => 'https://maps.app.goo.gl/dZc52hFThiUxPGXg7',
             'business.hours_confirmed' => '0',
-            'brand.accent_color' => '#C8A46A',
+            'brand.accent_color' => '#FF4D2E',
             'seo.title' => 'Zero 1 Barbearia — Campo Grande, Rio de Janeiro',
             'seo.description' => 'Barbearia em Campo Grande, Rio de Janeiro. Agende seu horário online e conheça o Clube Zero 1.',
             'seo.indexable' => '1',

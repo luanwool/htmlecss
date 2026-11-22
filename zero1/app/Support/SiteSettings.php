@@ -181,17 +181,24 @@ class SiteSettings
 
     public function accentColor(): string
     {
-        $c = (string) $this->get('brand.accent_color', '#C8A46A');
+        $c = (string) $this->get('brand.accent_color', '#FF4D2E');
 
-        return preg_match('/^#[0-9a-fA-F]{6}$/', $c) ? $c : '#C8A46A';
+        return preg_match('/^#[0-9a-fA-F]{6}$/', $c) ? $c : '#FF4D2E';
     }
 
-    /** Cor de texto legível sobre o acento (contraste WCAG simplificado). */
+    /** Cor de texto sobre o acento: a que tiver maior contraste WCAG (preto profundo ou branco). */
     public function accentInk(): string
     {
-        [$r, $g, $b] = sscanf($this->accentColor(), '#%02x%02x%02x');
-        $lum = (0.2126 * $r + 0.7152 * $g + 0.0722 * $b) / 255;
+        $lum = function (string $hex): float {
+            $c = array_map(fn ($v) => $v / 255, sscanf($hex, '#%02x%02x%02x'));
+            $c = array_map(fn ($v) => $v <= 0.03928 ? $v / 12.92 : (($v + 0.055) / 1.055) ** 2.4, $c);
 
-        return $lum > 0.55 ? '#17130c' : '#fbfaf7';
+            return 0.2126 * $c[0] + 0.7152 * $c[1] + 0.0722 * $c[2];
+        };
+        $l = $lum($this->accentColor());
+        $onDark = ($l + 0.05) / ($lum('#0b0503') + 0.05);
+        $onLight = ($lum('#ffffff') + 0.05) / ($l + 0.05);
+
+        return $onDark >= $onLight ? '#0b0503' : '#ffffff';
     }
 }

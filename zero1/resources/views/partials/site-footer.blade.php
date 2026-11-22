@@ -1,4 +1,5 @@
-<footer class="border-t border-white/10 bg-ink pb-28 pt-16 text-sm text-smoke md:pb-12" data-hide-sticky>
+<footer class="relative border-t border-white/10 bg-ink pb-28 pt-16 text-sm text-smoke md:pb-12" data-hide-sticky>
+    <div aria-hidden="true" class="pole absolute inset-x-0 top-0 h-px opacity-70"></div>
     <div class="container-site grid gap-12 md:grid-cols-12">
         <div class="md:col-span-5">
             @if ($logo)
@@ -11,7 +12,7 @@
             @endif
         </div>
         <div class="md:col-span-4">
-            <p class="eyebrow text-stone">Contato</p>
+            <p class="hud">Contato</p>
             <ul class="mt-4 space-y-1">
                 @if ($address = $site->fullAddress())<li>{{ $address }}</li>@endif
                 @if ($phone = $site->get('business.phone'))<li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="{{ $site->phoneHref() }}">{{ $phone }}</a></li>@endif
@@ -21,7 +22,7 @@
             </ul>
         </div>
         <div class="md:col-span-3">
-            <p class="eyebrow text-stone">Institucional</p>
+            <p class="hud">Institucional</p>
             <ul class="mt-4 space-y-1">
                 @foreach ($legalPages as $p)
                     <li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="{{ route('pages.show', $p->slug) }}">{{ $p->title }}</a></li>
