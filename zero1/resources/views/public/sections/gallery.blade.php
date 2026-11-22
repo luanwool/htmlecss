@@ -12,12 +12,12 @@
         </div>
         @if ($section->subtitle)<p class="reveal mt-4 max-w-xl text-smoke">{{ $section->subtitle }}</p>@endif
 
-        <ul class="mt-10 columns-2 gap-3 sm:gap-4 md:columns-3">
+        <ul data-stagger class="mt-10 columns-2 gap-3 sm:gap-4 md:columns-3">
             @foreach ($gallery as $item)
                 <li class="reveal mb-3 break-inside-avoid sm:mb-4">
                     <figure class="overflow-hidden rounded-2xl bg-graphite-2">
                         <img src="{{ $item->url(960) }}" srcset="{{ $item->srcset() }}" sizes="(min-width:768px) 31vw, 46vw" alt="{{ $item->alt_text ?? '' }}"
-                             loading="lazy" decoding="async" width="{{ $item->width }}" height="{{ $item->height }}" class="h-auto w-full">
+                             loading="lazy" decoding="async" width="{{ $item->width }}" height="{{ $item->height }}" class="h-auto w-full" data-gallery-img>
                         @if ($item->caption)<figcaption class="px-3 py-2 text-xs text-stone">{{ $item->caption }}</figcaption>@endif
                     </figure>
                 </li>

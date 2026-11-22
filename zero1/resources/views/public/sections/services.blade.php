@@ -11,15 +11,15 @@
 
             <div class="lg:col-span-8">
                 @forelse ($services->groupBy(fn ($s) => $s->category?->name ?? '') as $category => $items)
-                    <div class="reveal {{ ! $loop->first ? 'mt-14' : '' }}">
+                    <div class="{{ ! $loop->first ? 'mt-14' : '' }}">
                         @if ($category !== '')
-                            <h3 class="eyebrow mb-2 flex items-center gap-3 text-graphite/60">
+                            <h3 class="eyebrow reveal mb-2 flex items-center gap-3 text-graphite/60">
                                 <span class="font-display text-base normal-case tracking-normal text-accent" style="filter:brightness(.75)">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>{{ $category }}
                             </h3>
                         @endif
-                        <ul class="divide-y divide-ink/10 border-y border-ink/10">
+                        <ul class="divide-y divide-ink/10 border-y border-ink/10" data-stagger>
                             @foreach ($items as $service)
-                                <li class="group grid grid-cols-[1fr_auto] items-start gap-x-6 gap-y-2 py-6 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+                                <li class="reveal group grid grid-cols-[1fr_auto] items-start gap-x-6 gap-y-2 py-6 sm:grid-cols-[1fr_auto_auto] sm:items-center">
                                     <div class="min-w-0">
                                         <p class="font-display text-2xl leading-tight sm:text-[1.7rem]">{{ $service->name }}</p>
                                         @if ($service->description)<p class="mt-1.5 max-w-lg text-sm text-graphite/70">{{ $service->description }}</p>@endif

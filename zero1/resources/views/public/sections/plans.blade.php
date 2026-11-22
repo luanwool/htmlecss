@@ -9,10 +9,10 @@
         </div>
 
         @if ($plans->isNotEmpty())
-            <div class="mt-14 grid gap-5 {{ $plans->count() === 1 ? 'max-w-xl' : ($plans->count() === 2 ? 'md:grid-cols-2 max-w-5xl' : 'md:grid-cols-2 xl:grid-cols-3') }}">
+            <div data-stagger="cards" class="mt-14 grid gap-5 {{ $plans->count() === 1 ? 'max-w-xl' : ($plans->count() === 2 ? 'md:grid-cols-2 max-w-5xl' : 'md:grid-cols-2 xl:grid-cols-3') }}">
                 @foreach ($plans as $plan)
                     <article class="reveal relative flex flex-col rounded-3xl border p-7 sm:p-9 {{ $plan->is_featured ? 'border-accent/70 bg-ink shadow-[0_0_0_1px_var(--color-accent)_inset]' : 'border-white/10 bg-ink/50' }}"
-                             style="transition-delay: {{ $loop->index * 0.06 }}s" aria-labelledby="plan-{{ $plan->id }}">
+                             aria-labelledby="plan-{{ $plan->id }}">
                         @if ($plan->is_featured)
                             <span class="eyebrow absolute -top-3 left-7 rounded-full bg-accent px-3 py-1 text-[0.6rem] text-accent-ink">Destaque</span>
                         @endif

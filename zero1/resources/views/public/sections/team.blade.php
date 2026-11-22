@@ -7,9 +7,9 @@
             @if ($section->subtitle)<p class="reveal mt-5 text-smoke">{{ $section->subtitle }}</p>@endif
         </div>
 
-        <div class="mt-14 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+        <div data-stagger="cards" class="mt-14 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($barbers as $barber)
-                <article class="reveal group" style="transition-delay: {{ $loop->index * 0.06 }}s">
+                <article class="reveal group">
                     <div class="relative aspect-[4/5] overflow-hidden rounded-3xl bg-graphite-2">
                         @if ($barber->photo)
                             <img src="{{ $barber->photo->url(960) }}" srcset="{{ $barber->photo->srcset() }}" sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"

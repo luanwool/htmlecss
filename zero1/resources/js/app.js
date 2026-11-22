@@ -4,8 +4,6 @@
  */
 document.documentElement.classList.remove('no-js');
 
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 // Cabeçalho: muda de transparente para sólido ao rolar.
 const header = document.querySelector('[data-site-header]');
 if (header) {
@@ -28,20 +26,9 @@ document.querySelectorAll('[data-toggle]').forEach((btn) => {
     document.addEventListener('keydown', (e) => e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true' && (set(false), btn.focus()));
 });
 
-// Revelação suave ao rolar (desligada com prefers-reduced-motion).
-const revealEls = document.querySelectorAll('.reveal');
-if (reduceMotion || !('IntersectionObserver' in window)) {
-    revealEls.forEach((el) => el.classList.add('is-visible'));
-} else {
-    const io = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                io.unobserve(entry.target);
-            }
-        });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-    revealEls.forEach((el) => io.observe(el));
+// Motion da landing: só carrega se o <head> marcou html.anim (JS ativo e sem "reduzir movimento").
+if (document.documentElement.classList.contains('anim')) {
+    import('./landing-motion.js').catch(() => document.documentElement.classList.remove('anim'));
 }
 
 // CTA fixo no mobile: some quando o rodapé/CTA final está visível.

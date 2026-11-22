@@ -6,7 +6,7 @@
             <h2 id="faq-title" class="display-md reveal mt-3">{{ $section->title }}</h2>
             @if ($section->subtitle)<p class="reveal mt-4 text-graphite/70">{{ $section->subtitle }}</p>@endif
         </div>
-        <div class="divide-y divide-ink/10 border-y border-ink/10 lg:col-span-8">
+        <div data-stagger class="divide-y divide-ink/10 border-y border-ink/10 lg:col-span-8">
             @foreach ($faqs as $faq)
                 <details class="group reveal py-1" @if ($loop->first) open @endif>
                     <summary class="flex items-center justify-between gap-6 py-5 text-left text-lg font-medium">

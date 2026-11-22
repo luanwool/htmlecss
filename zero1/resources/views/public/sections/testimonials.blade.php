@@ -15,9 +15,9 @@
         </div>
 
         @if ($reviews->isNotEmpty())
-            <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div data-stagger="cards" class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                 @foreach ($reviews as $review)
-                    <figure class="reveal flex flex-col rounded-3xl bg-white p-7 shadow-[0_1px_0_rgba(0,0,0,.04)]" style="transition-delay: {{ $loop->index * 0.05 }}s">
+                    <figure class="reveal flex flex-col rounded-3xl bg-white p-7 shadow-[0_1px_0_rgba(0,0,0,.04)]">
                         <span class="font-display text-6xl leading-[0.5] text-accent" style="filter:brightness(.8)" aria-hidden="true">“</span>
                         <blockquote class="mt-4 flex-1 text-pretty text-[1.02rem] leading-relaxed text-graphite">{{ $review->content }}</blockquote>
                         <figcaption class="mt-6 flex items-center justify-between gap-3 border-t border-ink/10 pt-4 text-sm">

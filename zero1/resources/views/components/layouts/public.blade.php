@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'canonical' => null, 'noindex' => false, 'schema' => null, 'bodyClass' => 'bg-ink text-paper', 'stickyCta' => true])
+@props(['title' => null, 'description' => null, 'canonical' => null, 'noindex' => false, 'schema' => null, 'bodyClass' => 'bg-ink text-paper', 'stickyCta' => true, 'motion' => false])
 @php
     $siteName = $site->businessName();
     $pageTitle = $title ? $title.' · '.$siteName : ($site->get('seo.title') ?: $siteName);
@@ -30,6 +30,10 @@
     @endif
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <style>:root{--accent: {{ $site->accentColor() }};--accent-ink: {{ $site->accentInk() }};}</style>
+    @if ($motion)
+        {{-- Ativa animações só com JS e sem "reduzir movimento"; se o módulo não carregar em 3 s, mostra tudo. --}}
+        <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">(function(d){if(window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('anim');setTimeout(function(){if(!window.__z1Motion)d.classList.remove('anim')},3000)}})(document.documentElement);</script>
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @if ($schema)
         <script type="application/ld+json" nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}</script>
@@ -44,6 +48,7 @@
         </div>
     @endif
 
+    @if ($motion)<div class="scroll-progress" data-scroll-progress hidden aria-hidden="true"></div>@endif
     @include('partials.site-header', ['logo' => $logo])
 
     <main id="conteudo">
