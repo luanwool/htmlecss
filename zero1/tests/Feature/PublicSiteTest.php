@@ -27,6 +27,18 @@ class PublicSiteTest extends TestCase
             ->assertSee('horário a confirmar');
     }
 
+    public function test_how_it_works_section_is_shown_and_editable(): void
+    {
+        $this->get('/')->assertOk()->assertSee('id="como-funciona"', false)->assertSee('Escolha o serviço')->assertSee('Passo 1:');
+
+        $steps = \App\Models\PageSection::where('key', 'steps')->firstOrFail();
+        $this->actingAs($this->userWithRole(Role::Manager))->put("/painel/conteudo/secoes/{$steps->id}", [
+            'title' => 'Simples assim', 'is_visible' => '1',
+            'content' => ['step_1_title' => 'Passo editado', 'step_1_text' => str_repeat('a', 150), 'step_2_title' => 'Dois', 'step_3_title' => 'Três'],
+        ])->assertSessionHasNoErrors();
+        $this->get('/')->assertSee('Simples assim')->assertSee('Passo editado');
+    }
+
     public function test_base_seed_contains_no_fake_catalog_or_demo_data(): void
     {
         $this->assertSame(0, Service::count());

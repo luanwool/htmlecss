@@ -50,6 +50,19 @@ Acesso de demonstração (somente com `ZERO1_DEMO_MODE=true`, fora de produção
 
 Para criar um proprietário real: `php artisan zero1:create-owner`.
 
+## Skills de design do repositório
+
+A skill **UI UX Pro Max** (licença MIT, em `.claude/skills/ui-ux-pro-max/` na raiz do repositório) fica disponível
+para o Claude Code nas próximas sessões. Uso manual, sem dependências:
+
+```bash
+python3 .claude/skills/ui-ux-pro-max/scripts/search.py "scroll reveal reduced motion" --domain ux
+python3 .claude/skills/ui-ux-pro-max/scripts/search.py "vite assets blade" --stack laravel
+```
+
+Ao subir uma versão com novas seções da landing, rode `php artisan db:seed --class=SiteBaseSeeder --force`
+(idempotente: cria só o que falta, sem sobrescrever o conteúdo já editado no painel).
+
 ## Testes
 
 ```bash

@@ -4,7 +4,7 @@
     <div class="container-site">
         <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-                @if ($section->eyebrow)<p class="eyebrow reveal text-graphite/60">{{ $section->eyebrow }}</p>@endif
+                @if ($section->eyebrow)<p class="eyebrow reveal text-graphite/70">{{ $section->eyebrow }}</p>@endif
                 <h2 id="reviews-title" class="display-lg reveal mt-4 max-w-2xl">{{ $section->title }}</h2>
             </div>
             @if ($mapsUrl)
@@ -22,7 +22,7 @@
                         <blockquote class="mt-4 flex-1 text-pretty text-[1.02rem] leading-relaxed text-graphite">{{ $review->content }}</blockquote>
                         <figcaption class="mt-6 flex items-center justify-between gap-3 border-t border-ink/10 pt-4 text-sm">
                             <span class="font-semibold">{{ $review->author_name }}</span>
-                            <span class="flex items-center gap-2 text-xs text-graphite/60">
+                            <span class="flex items-center gap-2 text-xs text-graphite/70">
                                 @if ($review->rating)<span aria-label="{{ $review->rating }} de 5 estrelas">{{ str_repeat('★', $review->rating) }}</span>@endif
                                 @if ($review->source === 'google')· Google @endif
                             </span>

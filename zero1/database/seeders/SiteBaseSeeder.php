@@ -58,6 +58,15 @@ class SiteBaseSeeder extends Seeder
                 'subtitle' => 'Escolha o serviço, o barbeiro e o horário em poucos toques. Conheça também o Clube Zero 1.',
                 'content' => ['primary_cta' => 'Agendar horário', 'secondary_cta' => 'Conhecer planos'],
             ],
+            'steps' => [
+                'eyebrow' => 'Como funciona', 'title' => 'Do celular à cadeira em três passos.', 'subtitle' => null,
+                'content' => [
+                    'step_1_title' => 'Escolha o serviço', 'step_1_text' => 'Veja valores e durações antes de marcar.',
+                    'step_2_title' => 'Escolha o profissional e o horário', 'step_2_text' => 'Um barbeiro específico ou qualquer um disponível. Só aparecem horários realmente livres.',
+                    'step_3_title' => 'Confirme e salve na agenda', 'step_3_text' => 'Você recebe a confirmação por e-mail e pode adicionar ao Google Agenda ou ao calendário do celular.',
+                    'primary_cta' => 'Ver horários livres',
+                ],
+            ],
             'services' => ['eyebrow' => 'Serviços', 'title' => 'Serviços e preços', 'subtitle' => 'Valores e durações informados pela barbearia.'],
             'plans' => ['eyebrow' => 'Clube Zero 1', 'title' => 'Assinatura mensal', 'subtitle' => 'Planos com regras claras. O benefício é liberado após a confirmação do pagamento de cada mês.'],
             'team' => ['eyebrow' => 'Profissionais', 'title' => 'Quem atende você', 'subtitle' => null],
@@ -71,7 +80,9 @@ class SiteBaseSeeder extends Seeder
         ];
         $order = 0;
         foreach ($sections as $key => $data) {
-            PageSection::query()->firstOrCreate(['key' => $key], $data + ['sort_order' => ($order += 10), 'is_visible' => true]);
+            $order += 10;
+            // "steps" chegou depois: entra logo após o hero também em bancos já existentes.
+            PageSection::query()->firstOrCreate(['key' => $key], $data + ['sort_order' => $key === 'steps' ? 15 : $order, 'is_visible' => true]);
         }
 
         // Páginas legais: modelos NÃO publicados até revisão e aprovação pela barbearia.

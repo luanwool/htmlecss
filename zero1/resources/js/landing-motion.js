@@ -57,6 +57,16 @@ if (hero) {
     }
 }
 
+/* ---------- Linha que liga os 3 passos ---------- */
+const stepsLine = document.querySelector('[data-steps-line]');
+if (stepsLine) {
+    if (wide) {
+        scroll(animate(stepsLine, { scaleX: [0, 1] }, { ease: 'linear' }), { target: stepsLine.closest('section'), offset: ['start 85%', 'center 55%'] });
+    } else {
+        stepsLine.style.transform = 'none';
+    }
+}
+
 /* ---------- Barra de progresso de leitura ---------- */
 const progress = document.querySelector('[data-scroll-progress]');
 if (progress) {

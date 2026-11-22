@@ -17,7 +17,7 @@
         <div aria-hidden="true" class="absolute inset-y-0 left-[58%] -z-10 hidden w-px bg-gradient-to-b from-transparent via-white/10 to-transparent lg:block"></div>
     @endif
 
-    <div class="container-site flex flex-col pb-12 pt-14 md:min-h-[92svh] md:justify-end md:pb-16 md:pt-24">
+    <div class="container-site flex flex-col pb-12 pt-6 md:min-h-[92svh] md:justify-end md:pb-16 md:pt-24">
         <div class="max-w-4xl">
             @if ($section->eyebrow)
                 <p class="eyebrow flex items-center gap-3 text-accent" data-hero-fade><span class="h-px w-8 bg-accent" data-hero-rule></span>{{ $section->eyebrow }}</p>

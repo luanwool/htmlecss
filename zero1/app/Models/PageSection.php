@@ -9,6 +9,7 @@ class PageSection extends Model
 {
     public const KEYS = [
         'hero' => 'Hero (abertura)',
+        'steps' => 'Como funciona (3 passos)',
         'services' => 'Serviços e preços',
         'plans' => 'Clube Zero 1 (planos)',
         'team' => 'Profissionais',

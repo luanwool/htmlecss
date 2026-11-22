@@ -6,7 +6,11 @@
             <x-form.input name="title" label="Título" :value="$section->title" maxlength="160" />
             <x-form.textarea name="subtitle" label="Texto de apoio" :value="$section->subtitle" rows="3" data-count="600" maxlength="600" />
             @foreach ($extraFields as $field => $label)
-                <x-form.input :name="'content['.$field.']'" :label="$label" :value="$section->field($field)" maxlength="60" />
+                @if (str_ends_with($field, '_text'))
+                    <x-form.textarea :name="'content['.$field.']'" :label="$label" :value="$section->field($field)" rows="2" maxlength="180" />
+                @else
+                    <x-form.input :name="'content['.$field.']'" :label="$label" :value="$section->field($field)" maxlength="60" />
+                @endif
             @endforeach
         </div>
         <div class="space-y-6">

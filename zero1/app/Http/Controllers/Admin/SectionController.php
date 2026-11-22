@@ -15,6 +15,12 @@ class SectionController extends Controller
     /** Campos extras editáveis por seção (rótulos de CTA etc.). */
     public const EXTRA_FIELDS = [
         'hero' => ['primary_cta' => 'Texto do botão principal', 'secondary_cta' => 'Texto do botão secundário'],
+        'steps' => [
+            'step_1_title' => 'Passo 1 — título', 'step_1_text' => 'Passo 1 — texto',
+            'step_2_title' => 'Passo 2 — título', 'step_2_text' => 'Passo 2 — texto',
+            'step_3_title' => 'Passo 3 — título', 'step_3_text' => 'Passo 3 — texto',
+            'primary_cta' => 'Texto do botão',
+        ],
         'testimonials' => ['google_cta' => 'Texto do botão do Google Maps'],
         'cta' => ['primary_cta' => 'Texto do botão'],
     ];
@@ -46,7 +52,7 @@ class SectionController extends Controller
             'media_alt' => ['nullable', 'string', 'max:150'],
         ];
         foreach ($extra as $field) {
-            $rules["content.{$field}"] = ['nullable', 'string', 'max:60'];
+            $rules["content.{$field}"] = ['nullable', 'string', str_ends_with($field, '_text') ? 'max:180' : 'max:60'];
         }
         $v = $request->validate($rules);
         $original = $section->getOriginal();

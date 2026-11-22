@@ -12,24 +12,24 @@
         </div>
         <div class="md:col-span-4">
             <p class="eyebrow text-stone">Contato</p>
-            <ul class="mt-4 space-y-2">
+            <ul class="mt-4 space-y-1">
                 @if ($address = $site->fullAddress())<li>{{ $address }}</li>@endif
-                @if ($phone = $site->get('business.phone'))<li><a class="link-underline hover:text-paper" href="{{ $site->phoneHref() }}">{{ $phone }}</a></li>@endif
-                @if ($wa = $site->whatsappUrl())<li><a class="link-underline hover:text-paper" href="{{ $wa }}" target="_blank" rel="noopener">WhatsApp</a></li>@endif
-                @if ($email = $site->get('business.email'))<li><a class="link-underline hover:text-paper" href="mailto:{{ $email }}">{{ $email }}</a></li>@endif
-                @if ($ig = $site->get('business.instagram'))<li><a class="link-underline hover:text-paper" href="{{ $ig }}" target="_blank" rel="noopener">Instagram</a></li>@endif
+                @if ($phone = $site->get('business.phone'))<li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="{{ $site->phoneHref() }}">{{ $phone }}</a></li>@endif
+                @if ($wa = $site->whatsappUrl())<li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="{{ $wa }}" target="_blank" rel="noopener">WhatsApp</a></li>@endif
+                @if ($email = $site->get('business.email'))<li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="mailto:{{ $email }}">{{ $email }}</a></li>@endif
+                @if ($ig = $site->get('business.instagram'))<li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="{{ $ig }}" target="_blank" rel="noopener">Instagram</a></li>@endif
             </ul>
         </div>
         <div class="md:col-span-3">
             <p class="eyebrow text-stone">Institucional</p>
-            <ul class="mt-4 space-y-2">
+            <ul class="mt-4 space-y-1">
                 @foreach ($legalPages as $p)
-                    <li><a class="link-underline hover:text-paper" href="{{ route('pages.show', $p->slug) }}">{{ $p->title }}</a></li>
+                    <li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="{{ route('pages.show', $p->slug) }}">{{ $p->title }}</a></li>
                 @endforeach
                 @if ($site->get('marketing.ga4_id') || $site->get('marketing.meta_pixel_id'))
-                    <li><button type="button" data-consent-reopen class="link-underline hover:text-paper">Preferências de cookies</button></li>
+                    <li><button type="button" data-consent-reopen class="link-underline inline-flex min-h-8 items-center hover:text-paper">Preferências de cookies</button></li>
                 @endif
-                <li><a class="link-underline hover:text-paper" href="{{ route('login') }}">Área do cliente</a></li>
+                <li><a class="link-underline inline-flex min-h-8 items-center hover:text-paper" href="{{ route('login') }}">Área do cliente</a></li>
             </ul>
         </div>
     </div>

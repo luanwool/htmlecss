@@ -2,7 +2,7 @@
 <section id="faq" class="bg-paper pb-20 text-ink md:pb-28" aria-labelledby="faq-title">
     <div class="container-site grid gap-10 border-t border-ink/10 pt-16 lg:grid-cols-12">
         <div class="lg:col-span-4">
-            @if ($section->eyebrow)<p class="eyebrow reveal text-graphite/60">{{ $section->eyebrow }}</p>@endif
+            @if ($section->eyebrow)<p class="eyebrow reveal text-graphite/70">{{ $section->eyebrow }}</p>@endif
             <h2 id="faq-title" class="display-md reveal mt-3">{{ $section->title }}</h2>
             @if ($section->subtitle)<p class="reveal mt-4 text-graphite/70">{{ $section->subtitle }}</p>@endif
         </div>

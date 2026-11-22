@@ -57,8 +57,9 @@
 @layer components {
     .eyebrow { @apply text-[0.7rem] font-semibold uppercase tracking-[0.28em]; font-variation-settings: 'wdth' 115; }
     .display-xl { @apply font-display leading-[0.92] tracking-[-0.02em]; font-size: clamp(2.9rem, 9vw, 7.6rem); font-weight: 500; }
-    .display-lg { @apply font-display leading-[0.98] tracking-[-0.015em]; font-size: clamp(2.3rem, 5.4vw, 4.6rem); font-weight: 500; }
-    .display-md { @apply font-display leading-tight; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 500; }
+    .display-lg { @apply font-display leading-[0.98] tracking-[-0.015em]; font-size: clamp(2.3rem, 5.4vw, 4.6rem); font-weight: 500; text-wrap: balance; }
+    .display-md { @apply font-display leading-tight; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 500; text-wrap: balance; }
+    .display-xl { text-wrap: balance; }
 
     .container-site { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10; }
 
@@ -68,14 +69,14 @@
     .btn-ghost-light { @apply btn border border-white/25 text-paper hover:border-white/60 hover:bg-white/5; }
     .btn-ghost-dark { @apply btn border border-ink/20 text-ink hover:border-ink/60; }
 
-    .link-underline { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .4s var(--ease-out-soft); }
+    .link-underline { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .25s var(--ease-out-soft); }
     .link-underline:hover { background-size: 100% 1px; }
 
     /* Estado inicial das animações: só existe enquanto html.anim estiver ativo (JS + sem reduced-motion).
        Sem isso — ou se o módulo falhar — a página é exibida completa e estática. */
     .anim .reveal, .anim [data-hero-fade], .anim [data-hero-facts] > div, .anim [data-hero-title],
     .anim [data-hero-numeral], .anim [data-hero-media] { opacity: 0; }
-    .anim [data-hero-rule] { transform: scaleX(0); transform-origin: left; }
+    .anim [data-hero-rule], .anim [data-steps-line] { transform: scaleX(0); transform-origin: left; }
     .hero-word { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .14em; margin-bottom: -.14em; }
     .hero-word > span { display: inline-block; will-change: transform; }
     .scroll-progress { position: fixed; inset: 0 0 auto; height: 2px; z-index: 70; background: var(--color-accent); transform: scaleX(0); transform-origin: left; pointer-events: none; }
