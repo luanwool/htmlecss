@@ -113,6 +113,27 @@
             </div>
         </section>
 
+        <section id="pagamentos" class="card scroll-mt-24">
+            <h2 class="font-semibold">Pagamentos (Mercado Pago)</h2>
+            <p class="mt-1 text-sm text-stone">Enquanto não houver credenciais salvas, o sistema continua no <strong>modo simulado</strong> (nenhuma cobrança real).
+                Criar as chaves em <a class="underline" target="_blank" rel="noopener" href="https://www.mercadopago.com.br/developers/panel">mercadopago.com.br/developers/panel</a>.</p>
+            @php $mpEnabled = $settings->get('mp.enabled'); $mpEnv = $settings->get('mp.env', 'sandbox'); @endphp
+            <div class="mt-5 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3 text-sm">
+                <span class="size-2.5 rounded-full {{ $mpEnabled ? 'bg-emerald-400' : 'bg-amber-400' }}"></span>
+                <span class="flex-1">{{ $mpEnabled ? 'Credenciais ativas · ambiente '.$mpEnv : 'Modo simulado (aguardando credenciais)' }}</span>
+                @if ($mpEnabled)<span class="badge-green">Online</span>@else<span class="badge-amber">Sandbox</span>@endif
+            </div>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                <x-form.select name="s[mp_env]" label="Ambiente" :value="$mpEnv" :options="['sandbox' => 'Sandbox (teste)', 'production' => 'Produção (cobranças reais)']" />
+                <x-form.input name="s[mp_public_key]" label="Public Key" :value="$settings->get('mp.public_key')" placeholder="APP_USR-..." autocomplete="off" />
+                <x-form.input name="s[mp_access_token]" type="password" label="Access Token" :value="$settings->get('mp.access_token')" placeholder="APP_USR-..." autocomplete="off" class="sm:col-span-2" hint="Nunca compartilhe estas chaves por mensagem." />
+                <x-form.input name="s[mp_webhook_secret]" type="password" label="Chave secreta do webhook" :value="$settings->get('mp.webhook_secret')" autocomplete="off" class="sm:col-span-2" hint="Apontar o webhook do Mercado Pago para {{ url('/webhooks/pagamentos/mercadopago') }}" />
+            </div>
+            <div class="mt-5">
+                <x-form.checkbox name="mp_enabled" label="Usar o Mercado Pago (desmarque para voltar ao modo simulado)" :checked="(bool) $mpEnabled" hint="Enquanto o adaptador oficial não entra, as chaves ficam salvas e o modo simulado continua ativo." />
+            </div>
+        </section>
+
         <section id="marketing" class="card scroll-mt-24">
             <h2 class="font-semibold">Medição e marketing</h2>
             <p class="mt-1 text-sm text-stone">Opcional. Quando preenchidos, o site exibe o banner de consentimento e só carrega os scripts após o aceite.</p>

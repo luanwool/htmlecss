@@ -61,6 +61,12 @@ class SiteSettings
         // Marketing (só carregado após consentimento)
         'marketing.ga4_id' => 'string',
         'marketing.meta_pixel_id' => 'string',
+        // Mercado Pago (configurado no painel; chaves nunca por mensagem)
+        'mp.enabled' => 'bool',
+        'mp.env' => 'string',          // sandbox | production
+        'mp.public_key' => 'string',
+        'mp.access_token' => 'string',
+        'mp.webhook_secret' => 'string',
     ];
 
     protected ?array $values = null;

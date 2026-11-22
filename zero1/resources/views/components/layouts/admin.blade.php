@@ -43,10 +43,10 @@
     <style>:root{--accent: {{ $site->accentColor() }};--accent-ink: {{ $site->accentInk() }};}</style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-dvh bg-[#f6f5f1] text-ink antialiased">
+<body class="app-dark min-h-dvh bg-ink text-paper antialiased" style="background-image:radial-gradient(40rem 26rem at 90% -10%, color-mix(in oklab, var(--color-accent) 10%, transparent), transparent 60%),radial-gradient(34rem 24rem at -10% 110%, color-mix(in oklab, var(--color-ion) 10%, transparent), transparent 60%);background-attachment:fixed">
     <a href="#conteudo" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">Pular para o conteúdo</a>
     <div class="lg:flex">
-        <aside id="admin-nav" class="fixed inset-y-0 left-0 z-50 hidden w-72 flex-col overflow-y-auto bg-ink text-smoke data-[open]:flex lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-64">
+        <aside id="admin-nav" class="fixed inset-y-0 left-0 z-50 hidden w-72 flex-col overflow-y-auto border-r border-white/5 bg-graphite/80 text-smoke backdrop-blur-xl data-[open]:flex lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-64">
             <div class="flex h-16 items-center justify-between px-5">
                 <a href="{{ route('admin.dashboard') }}"><x-wordmark /></a>
                 <button type="button" data-close class="inline-flex size-10 items-center justify-center rounded-full lg:hidden" aria-label="Fechar menu"><x-icon name="close" /></button>
@@ -66,8 +66,8 @@
                             @php
                                 $active = request()->routeIs(...explode('|', $item[5]));
                             @endphp
-                            <a href="{{ route($item[0], $item[1]) }}" @if ($active) aria-current="page" @endif
-                               @class(['flex items-center gap-3 rounded-lg px-3 py-2 transition', 'bg-white/10 text-paper' => $active, 'hover:bg-white/5 hover:text-paper' => ! $active])>
+                            <a href="{{ route($item[0], $item[1]) }}" @if ($active) aria-current="page" @endif @style(['box-shadow: inset 2px 0 0 var(--color-accent)' => $active])
+                               @class(['relative flex items-center gap-3 rounded-lg px-3 py-2 transition', 'bg-white/[.06] text-paper' => $active, 'hover:bg-white/[.04] hover:text-paper' => ! $active])>
                                 <x-icon :name="$item[3]" class="size-[1.1rem] opacity-80" />
                                 <span class="flex-1">{{ $item[2] }}</span>
                             </a>
@@ -86,7 +86,7 @@
         </aside>
 
         <div class="min-w-0 flex-1">
-            <header class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-black/[.06] bg-[#f6f5f1]/90 px-4 backdrop-blur sm:px-6 lg:px-10">
+            <header class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-white/5 bg-ink/70 px-4 backdrop-blur-xl sm:px-6 lg:px-10">
                 <button type="button" data-toggle="admin-nav" data-lock-scroll aria-controls="admin-nav" aria-expanded="false"
                         class="inline-flex size-10 items-center justify-center rounded-full border border-black/10 lg:hidden" aria-label="Abrir menu"><x-icon name="menu" /></button>
                 <h1 class="truncate text-lg font-semibold">{{ $title }}</h1>

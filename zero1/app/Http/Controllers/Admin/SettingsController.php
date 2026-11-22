@@ -84,6 +84,7 @@ class SettingsController extends Controller
         $values['seo.indexable'] = $request->boolean('seo_indexable');
         $values['booking.late_cancel_forfeits'] = $request->boolean('booking_late_cancel_forfeits');
         $values['booking.no_show_consumes_credit'] = $request->boolean('booking_no_show_consumes_credit');
+        $values['mp.enabled'] = $request->boolean('mp_enabled');
 
         $before = $settings->all();
 

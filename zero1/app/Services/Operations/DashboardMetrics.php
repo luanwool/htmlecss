@@ -90,7 +90,60 @@ class DashboardMetrics
             'popular_hours' => (clone $appts)->whereIn('status', AppointmentStatus::occupying())->get(['starts_at'])
                 ->countBy(fn ($a) => BusinessTime::local($a->starts_at)->format('H:00'))->sortDesc()->take(5),
             'occupancy' => $this->occupancy($fromUtc, $toUtc),
+            'series' => $this->series(14),
         ];
+    }
+
+    /**
+     * Série dos últimos N dias (local): entradas de caixa, atendimentos concluídos e faltas por dia.
+     * Usada nos mini-gráficos do painel.
+     *
+     * @return array{labels: string[], income: int[], visits: int[], no_show: int[]}
+     */
+    public function series(int $days = 14): array
+    {
+        $end = \App\Support\BusinessTime::now()->endOfDay();
+        $start = $end->subDays($days - 1)->startOfDay();
+        $tz = config('zero1.timezone');
+        $labels = $income = $visits = $noShow = [];
+        $buckets = fn () => array_fill(0, $days, 0);
+        $byDay = [
+            'income' => $buckets(),
+            'visits' => $buckets(),
+            'noShow' => $buckets(),
+        ];
+        $index = function (\DateTimeInterface $dt) use ($start, $tz, $days) {
+            $local = \Carbon\CarbonImmutable::instance($dt)->setTimezone($tz)->startOfDay();
+            $i = (int) $start->diffInDays($local, false);
+
+            return $i >= 0 && $i < $days ? $i : null;
+        };
+        foreach (\App\Models\FinancialEntry::query()->where('type', 'income')->where('status', 'paid')
+            ->whereBetween('occurred_at', [$start->utc(), $end->utc()])->get(['occurred_at', 'amount_cents']) as $e) {
+            $i = $index($e->occurred_at);
+            if ($i !== null) {
+                $byDay['income'][$i] += (int) $e->amount_cents;
+            }
+        }
+        foreach (\App\Models\ServiceVisit::query()
+            ->whereBetween('performed_at', [$start->utc(), $end->utc()])->get(['performed_at']) as $v) {
+            $i = $index($v->performed_at);
+            if ($i !== null) {
+                $byDay['visits'][$i]++;
+            }
+        }
+        foreach (\App\Models\Appointment::query()->where('status', 'no_show')
+            ->whereBetween('starts_at', [$start->utc(), $end->utc()])->get(['starts_at']) as $a) {
+            $i = $index($a->starts_at);
+            if ($i !== null) {
+                $byDay['noShow'][$i]++;
+            }
+        }
+        for ($i = 0; $i < $days; $i++) {
+            $labels[] = $start->addDays($i)->toDateString();
+        }
+
+        return ['labels' => $labels, 'income' => $byDay['income'], 'visits' => $byDay['visits'], 'noShow' => $byDay['noShow']];
     }
 
     /** Ocupação = minutos agendados ÷ minutos de escala, no período (aproximação por barbeiro ativo). */
