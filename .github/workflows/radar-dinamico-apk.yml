@@ -1,0 +1,23 @@
+name: Radar Dinâmico — APK
+
+on:
+  push:
+    paths: ["radar-dinamico/**", ".github/workflows/radar-dinamico-apk.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: radar-dinamico
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: android-actions/setup-android@v3
+      - run: chmod +x gradlew && ./gradlew --no-daemon testDebugUnitTest assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: radar-dinamico-apk
+          path: radar-dinamico/app/build/outputs/apk/release/app-release.apk
