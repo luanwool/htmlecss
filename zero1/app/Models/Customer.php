@@ -15,7 +15,7 @@ class Customer extends Model
 
     protected $fillable = [
         'user_id', 'name', 'email', 'phone', 'internal_notes', 'origin',
-        'terms_accepted_at', 'privacy_accepted_at', 'marketing_consent_at', 'created_by',
+        'terms_accepted_at', 'privacy_accepted_at', 'marketing_consent_at', 'created_by', 'referred_by_customer_id', 'referral_cookie_code',
     ];
 
     protected function casts(): array
@@ -56,5 +56,25 @@ class Customer extends Model
     public function routeNotificationForMail(): ?string
     {
         return $this->email;
+    }
+
+    public function referralCode(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ReferralCode::class);
+    }
+
+    public function referralReceived(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Referral::class, 'referred_customer_id');
+    }
+
+    public function referralsSent(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_customer_id');
+    }
+
+    public function referralCredits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ReferralCredit::class);
     }
 }

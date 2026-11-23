@@ -9,7 +9,7 @@
             <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn-ghost-dark min-h-10 px-4 text-xs">Sair</button></form>
         </div>
         <nav class="mt-4 flex gap-1 text-sm" aria-label="Barbeiro">
-            @foreach ([['barber.dashboard', 'Minha agenda'], ['barber.visits.index', 'Produção'], ['barber.visits.create', 'Registrar']] as [$r, $l])
+            @foreach ([['barber.dashboard', 'Minha agenda'], ['barber.visits.index', 'Produção'], ['barber.visits.create', 'Registrar'], ['barber.schedule.index', 'Escala']] as [$r, $l])
                 <a href="{{ route($r) }}" @class(['rounded-full px-4 py-2', 'bg-ink text-paper' => request()->routeIs($r), 'bg-white border border-black/10' => ! request()->routeIs($r)])>{{ $l }}</a>
             @endforeach
         </nav>

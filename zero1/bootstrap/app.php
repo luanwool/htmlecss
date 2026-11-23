@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [SecurityHeaders::class, EnsureUserIsActive::class]);
         $middleware->validateCsrfTokens(except: ['webhooks/*']);
+        $middleware->encryptCookies(except: [\App\Services\Referrals\ReferralProgram::COOKIE]);
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

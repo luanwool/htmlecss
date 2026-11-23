@@ -9,6 +9,7 @@
             ['admin.agenda.index', [], 'Agenda', 'calendar', 'agenda.view_all', 'admin.agenda.*'],
             ['admin.visits.index', [], 'Atendimentos', 'scissors', 'agenda.manage', 'admin.visits.*'],
             ['admin.schedules.index', [], 'Escalas e bloqueios', 'clock', 'schedules.manage', 'admin.schedules.*'],
+            ['admin.schedule-requests.index', [], 'Pedidos de escala', 'list', 'schedule.review', 'admin.schedule-requests.*'],
         ],
         'Catálogo' => [
             ['admin.services.index', [], 'Serviços', 'list', 'services.manage', 'admin.services.*'],
@@ -18,6 +19,7 @@
         'Clientes' => [
             ['admin.customers.index', [], 'Clientes', 'users', 'customers.view', 'admin.customers.*'],
             ['admin.subscriptions.index', [], 'Assinaturas', 'card', 'subscriptions.manage', 'admin.subscriptions.*'],
+            ['admin.referrals.index', [], 'Indicações', 'users', 'referrals.manage', 'admin.referrals.*'],
         ],
         'Gestão' => [
             ['admin.finance.index', [], 'Financeiro', 'wallet', 'finance.view', 'admin.finance.*'],

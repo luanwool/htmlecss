@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', Public\HomeController::class)->name('home');
 Route::get('/p/{page:slug}', Public\PageController::class)->name('pages.show');
 Route::get('/sitemap.xml', Public\SitemapController::class)->name('sitemap');
+Route::get('/i/{code}', Public\ReferralLinkController::class)
+    ->whereAlphaNumeric('code')->middleware('throttle:30,1')->name('referral.link');
 Route::get('/robots.txt', Public\RobotsController::class)->name('robots');
 // Agendamento: qualquer visitante vê horários; confirmar exige login.
 Route::get('/agendar', [Public\BookingController::class, 'create'])->name('booking.start');
@@ -74,6 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/perfil', [Account\ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/perfil', [Account\ProfileController::class, 'update'])->name('profile.update');
         Route::put('/senha', [Account\ProfileController::class, 'password'])->name('password.update');
+        Route::get('/indicar', Account\ReferralController::class)->name('referrals');
         Route::get('/privacidade', [Account\PrivacyController::class, 'index'])->name('privacy');
         Route::get('/privacidade/exportar', [Account\PrivacyController::class, 'export'])->middleware('throttle:5,1')->name('privacy.export');
         Route::post('/privacidade/solicitacao', [Account\PrivacyController::class, 'request'])->middleware('throttle:5,1')->name('privacy.request');
@@ -87,6 +90,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/atendimento/novo', [Barber\VisitController::class, 'create'])->name('visits.create');
         Route::post('/atendimento', [Barber\VisitController::class, 'store'])->name('visits.store');
         Route::get('/producao', [Barber\VisitController::class, 'index'])->name('visits.index');
+        Route::get('/escala', [Barber\ScheduleController::class, 'index'])->name('schedule.index');
+        Route::post('/escala', [Barber\ScheduleController::class, 'store'])->middleware('throttle:10,1')->name('schedule.store');
+        Route::post('/escala/{scheduleRequest}/cancelar', [Barber\ScheduleController::class, 'cancel'])->name('schedule.cancel');
         Route::post('/agendamentos/{appointment}/{action}', [Barber\DashboardController::class, 'action'])
             ->whereIn('action', ['iniciar', 'concluir', 'ausente'])->name('appointments.action');
     });
@@ -112,6 +118,14 @@ Route::middleware('auth')->group(function () {
             Route::get('atendimentos/novo', [Admin\VisitController::class, 'create'])->name('visits.create');
             Route::post('atendimentos', [Admin\VisitController::class, 'store'])->name('visits.store');
             Route::post('atendimentos/{visit}/pago', [Admin\VisitController::class, 'markPaid'])->name('visits.paid');
+        });
+        Route::middleware('permission:'.P::ScheduleReview->value)->group(function () {
+            Route::get('escala/pedidos', [Admin\ScheduleRequestController::class, 'index'])->name('schedule-requests.index');
+            Route::post('escala/pedidos/{scheduleRequest}/aprovar', [Admin\ScheduleRequestController::class, 'approve'])->name('schedule-requests.approve');
+            Route::post('escala/pedidos/{scheduleRequest}/rejeitar', [Admin\ScheduleRequestController::class, 'reject'])->name('schedule-requests.reject');
+        });
+        Route::middleware('permission:'.P::ReferralsManage->value)->group(function () {
+            Route::get('indicacoes', [Admin\ReferralController::class, 'index'])->name('referrals.index');
         });
         Route::middleware('permission:'.P::SchedulesManage->value)->group(function () {
             Route::get('escalas', [Admin\ScheduleController::class, 'index'])->name('schedules.index');

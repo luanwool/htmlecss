@@ -67,6 +67,14 @@ class SiteSettings
         'mp.public_key' => 'string',
         'mp.access_token' => 'string',
         'mp.webhook_secret' => 'string',
+        // Programa de indicação (editado no painel do ADM)
+        'referral.enabled' => 'bool',
+        'referral.referrer_percent' => 'int',   // 0–100
+        'referral.referred_percent' => 'int',   // 0–100
+        'referral.credit_valid_days' => 'int',  // 0 = sem validade
+        'referral.min_referrer_balance' => 'int', // centavos (impede créditos irrelevantes)
+        'referral.max_percent_per_visit' => 'int', // teto em % por atendimento
+        'referral.message' => 'text',           // texto visível para o indicado
     ];
 
     protected ?array $values = null;

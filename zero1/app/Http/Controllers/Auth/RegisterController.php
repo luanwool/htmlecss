@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\Referrals\ReferralProgram;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
@@ -58,6 +59,12 @@ class RegisterController extends Controller
 
             return $user;
         });
+
+        // Vincula a indicação (se houve clique em /i/<code> antes do cadastro, por sessão ou cookie).
+        $refCode = $request->session()->pull(ReferralProgram::COOKIE) ?: $request->cookie(ReferralProgram::COOKIE);
+        if ($refCode) {
+            app(ReferralProgram::class)->linkFromCookie($user->customer, $refCode);
+        }
 
         event(new Registered($user));
         Auth::login($user);

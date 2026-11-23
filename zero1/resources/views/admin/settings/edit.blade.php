@@ -134,6 +134,25 @@
             </div>
         </section>
 
+                <section id="indicacoes" class="card scroll-mt-24">
+            <h2 class="font-semibold">Programa de indicação</h2>
+            <p class="mt-1 text-sm text-stone">Cada cliente ganha um código único. Ao concluir o primeiro atendimento avulso de um indicado, ambos ganham crédito, aplicado automaticamente no próximo atendimento.</p>
+            @php $re = $settings->get('referral.enabled'); @endphp
+            <div class="mt-4">
+                <x-form.checkbox name="referral_enabled" label="Ativar programa de indicação" :checked="(bool) $re" hint="Desative para suspender a emissão de novos créditos; os já emitidos continuam valendo até a validade." />
+            </div>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <x-form.input name="s[referral_referred_percent]" type="number" min="0" max="100" label="Desconto para o indicado (%)" :value="$settings->get('referral.referred_percent', 30)" />
+                <x-form.input name="s[referral_referrer_percent]" type="number" min="0" max="100" label="Crédito para o indicador (%)" :value="$settings->get('referral.referrer_percent', 10)" />
+                <x-form.input name="s[referral_max_percent_per_visit]" type="number" min="0" max="100" label="Teto por atendimento (%)" :value="$settings->get('referral.max_percent_per_visit', 50)" hint="Evita que o crédito zere o atendimento." />
+                <x-form.input name="s[referral_credit_valid_days]" type="number" min="0" max="365" label="Validade dos créditos (dias)" :value="$settings->get('referral.credit_valid_days', 90)" hint="0 = sem validade." />
+                <x-form.input name="s[referral_min_referrer_balance]" type="number" min="0" label="Mínimo do indicador (centavos)" :value="$settings->get('referral.min_referrer_balance', 0)" hint="Não emite crédito do indicador abaixo deste valor." />
+            </div>
+            <div class="mt-5">
+                <x-form.textarea name="s[referral_message]" label="Mensagem para o indicado" :value="$settings->get('referral.message')" rows="2" hint="Exibida na página do cliente quando ele vê o próprio código." />
+            </div>
+        </section>
+
         <section id="marketing" class="card scroll-mt-24">
             <h2 class="font-semibold">Medição e marketing</h2>
             <p class="mt-1 text-sm text-stone">Opcional. Quando preenchidos, o site exibe o banner de consentimento e só carrega os scripts após o aceite.</p>

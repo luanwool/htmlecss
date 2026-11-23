@@ -28,6 +28,8 @@ enum Permission: string
     case AuditView = 'audit.view';
     case IntegrationsManage = 'integrations.manage';
     case PrivacyManage = 'privacy.manage';
+    case ScheduleReview = 'schedule.review';     // ADM analisa pedidos de alteração de escala dos barbeiros
+    case ReferralsManage = 'referrals.manage';   // ADM configura e vê o programa de indicação
 
     public function label(): string
     {
@@ -52,6 +54,8 @@ enum Permission: string
             self::AuditView => 'Ver auditoria',
             self::IntegrationsManage => 'Gerenciar integrações (pagamentos)',
             self::PrivacyManage => 'Tratar solicitações LGPD',
+            self::ScheduleReview => 'Analisar pedidos de escala dos barbeiros',
+            self::ReferralsManage => 'Gerenciar programa de indicações',
         };
     }
 

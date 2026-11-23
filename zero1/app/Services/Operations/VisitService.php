@@ -13,6 +13,7 @@ use App\Models\Service;
 use App\Models\ServiceVisit;
 use App\Models\User;
 use App\Services\Audit\AuditLogger;
+use App\Services\Referrals\ReferralProgram;
 use App\Services\Booking\BookingRequest;
 use App\Services\Booking\BookingService;
 use App\Services\Club\EntitlementService;
@@ -29,6 +30,7 @@ class VisitService
         private EntitlementService $entitlements,
         private BookingService $booking,
         private AuditLogger $audit,
+        private ReferralProgram $referrals,
     ) {}
 
     /**
@@ -69,7 +71,12 @@ class VisitService
                 'origin' => $a->origin, 'subscription_id' => $a->subscription_id, 'billing_cycle_id' => $a->billing_cycle_id,
                 'notes' => $data['notes'] ?? null, 'created_by' => $actor?->id,
             ]);
+            // Programa de indicação: aplica crédito do indicado antes de lançar o financeiro
+            // e, se este foi o primeiro atendimento concluído do indicado, emite as recompensas.
+            $this->referrals->applyToVisit($visit);
+            $visit->refresh();
             $this->postFinancials($visit, $actor);
+            $this->referrals->onVisitCompleted($visit);
 
             return $visit;
         });

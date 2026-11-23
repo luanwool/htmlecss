@@ -155,3 +155,19 @@ if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         card.style.setProperty('--my', `${e.clientY - r.top}px`);
     }, { passive: true });
 }
+
+// Botão "Copiar": [data-copy="elId"] [data-ok="texto"]
+document.querySelectorAll('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        const el = document.getElementById(btn.dataset.copy);
+        if (!el) return;
+        try {
+            await navigator.clipboard.writeText(el.value || el.textContent);
+            const old = btn.textContent;
+            btn.textContent = btn.dataset.ok || 'Copiado';
+            setTimeout(() => { btn.textContent = old; }, 1600);
+        } catch (e) {
+            el.select?.(); document.execCommand?.('copy');
+        }
+    });
+});
