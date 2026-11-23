@@ -128,6 +128,9 @@ fun SettingsScreen(modifier: Modifier) {
             SectionCard("Como avisar") {
                 ToggleRow("Som", null, s.sound) { v -> set { it.copy(sound = v) } }
                 ToggleRow("Vibração", null, s.vibrate) { v -> set { it.copy(vibrate = v) } }
+                ToggleRow("Bairro em destaque", "Título da notificação com o bairro da zona, ex.: COSMOS — Dinâmico +R$ 15 • 300 m", s.showNeighborhood) { v ->
+                    set { it.copy(showNeighborhood = v) }
+                }
                 ToggleRow("Falar em voz alta", "Ex.: \"Dinâmico de 8 reais, a 2 quilômetros\" — sem tirar os olhos da via", s.speak) { v ->
                     set { it.copy(speak = v) }
                 }

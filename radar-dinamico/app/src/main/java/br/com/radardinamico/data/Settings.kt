@@ -22,7 +22,8 @@ data class Settings(
     // Forma do alerta
     val sound: Boolean = true,
     val vibrate: Boolean = true,
-    val speak: Boolean = false,            // ler o alerta em voz alta (bom para quem está dirigindo)
+    val speak: Boolean = false,
+    val showNeighborhood: Boolean = true,  // bairro em destaque no título da notificação            // ler o alerta em voz alta (bom para quem está dirigindo)
     // Sugestões a partir do histórico
     val suggestionsEnabled: Boolean = true,
     val suggestionIntervalMin: Int = 30,
@@ -64,6 +65,7 @@ object SettingsStore {
             sound = p.getBoolean("sound", d.sound),
             vibrate = p.getBoolean("vibrate", d.vibrate),
             speak = p.getBoolean("speak", d.speak),
+            showNeighborhood = p.getBoolean("showNeighborhood", d.showNeighborhood),
             suggestionsEnabled = p.getBoolean("suggestionsEnabled", d.suggestionsEnabled),
             suggestionIntervalMin = p.getInt("suggestionIntervalMin", d.suggestionIntervalMin),
             sourceUberScreen = p.getBoolean("sourceUberScreen", d.sourceUberScreen),
@@ -95,6 +97,7 @@ object SettingsStore {
             .putBoolean("sound", s.sound)
             .putBoolean("vibrate", s.vibrate)
             .putBoolean("speak", s.speak)
+            .putBoolean("showNeighborhood", s.showNeighborhood)
             .putBoolean("suggestionsEnabled", s.suggestionsEnabled)
             .putInt("suggestionIntervalMin", s.suggestionIntervalMin)
             .putBoolean("sourceUberScreen", s.sourceUberScreen)

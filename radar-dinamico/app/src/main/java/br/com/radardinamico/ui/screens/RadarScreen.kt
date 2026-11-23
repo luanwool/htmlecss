@@ -63,6 +63,7 @@ import br.com.radardinamico.data.SettingsStore
 import br.com.radardinamico.data.SurgeKind
 import br.com.radardinamico.data.SurgeRepository
 import br.com.radardinamico.service.RadarService
+import br.com.radardinamico.service.Neighborhood
 import br.com.radardinamico.service.RadarState
 import br.com.radardinamico.ui.theme.RadarColors
 import kotlinx.coroutines.delay
@@ -234,6 +235,16 @@ fun RadarScreen(modifier: Modifier, onOpenSettings: () -> Unit) {
                         fontSize = 26.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(130.dp),
                     )
                     Column(Modifier.weight(1f)) {
+                        val bairro by androidx.compose.runtime.produceState(
+                            Neighborhood.cached(ctx, GeoPoint(e.lat, e.lng)), e.id, settings.showNeighborhood,
+                        ) {
+                            if (settings.showNeighborhood && value == null) value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                Neighborhood.resolve(ctx, GeoPoint(e.lat, e.lng))
+                            }
+                        }
+                        if (settings.showNeighborhood) bairro?.let {
+                            Text(it.uppercase(), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                        }
                         Text(
                             when {
                                 dist == null -> "Sem GPS"

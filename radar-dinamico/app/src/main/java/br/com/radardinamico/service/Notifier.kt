@@ -82,33 +82,40 @@ object Notifier {
         val e = m.event
         val target = br.com.radardinamico.data.GeoPoint(e.lat, e.lng)
         val near = m.distanceKm != null && m.distanceKm < 0.15
-        val dist = m.distanceKm?.let { if (near) null else Geo.formatKm(it) }
-        val dir = if (near) null else RadarState.location.value?.let { Geo.cardinal(it, target) }
-        val title = "Dinâmico ${e.label()}" + when {
-            near -> " onde você está"
-            dist != null -> " a $dist"
-            else -> ""
+        val distText = when {
+            near -> "no seu local"
+            m.distanceKm != null -> Geo.formatKm(m.distanceKm)
+            else -> null
         }
-        val body = buildString {
+        val dir = if (near) null else RadarState.location.value?.let { Geo.cardinal(it, target) }
+        // Ex.: título "COSMOS", texto "Dinâmico +R$ 15 • 300 m"
+        val bairro = if (s.showNeighborhood) Neighborhood.resolve(ctx, target) else null
+        val headline = "Dinâmico ${e.shortLabel()}" + (distText?.let { " • $it" } ?: "")
+        val title = bairro?.uppercase(Locale("pt", "BR")) ?: headline
+        val text = if (bairro != null) headline else e.source.label
+        val details = buildString {
             append(e.source.label)
             dir?.let { append(" • direção $it") }
             e.note?.let { if (e.source != br.com.radardinamico.data.SurgeSource.UBER_NOTIFICATION) append(" • $it") }
-            append(" • raio ${s.radiusKm.toInt()} km")
         }
         val n = NotificationCompat.Builder(ctx, if (s.sound) CH_ALERT_SOUND else CH_ALERT_SILENT)
             .setSmallIcon(R.drawable.ic_stat_radar)
             .setContentTitle(title)
-            .setContentText(body)
+            .setContentText(text)
+            .setSubText(e.shortLabel())
+            .setStyle(NotificationCompat.BigTextStyle().bigText(if (bairro != null) "$headline\n$details" else details))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
             .setAutoCancel(true)
             .setContentIntent(openAppIntent(ctx))
             .addAction(0, "Navegar até lá", navigateIntent(ctx, e.lat, e.lng, e.id.toInt()))
             .build()
-        NotificationManagerCompat.from(ctx).notify(1000 + (e.id % 500).toInt(), n)
+        // Uma notificação por região: a mesma zona atualiza em vez de empilhar; regiões diferentes ficam separadas.
+        NotificationManagerCompat.from(ctx).notify(1000 + Math.floorMod(m.cell.hashCode(), 5000), n)
         if (s.vibrate) vibrate(ctx)
         if (s.speak) speak(ctx, buildString {
-            append("Dinâmico de ")
+            bairro?.let { append("$it: ") }
+            append("dinâmico de ")
             append(spokenValue(e))
             m.distanceKm?.let { if (it >= 0.15) append(", a ${spokenKm(it)}") else append(", onde você está") }
         })
@@ -119,9 +126,10 @@ object Notifier {
         val value = spot.avgMoney?.let { "+R$ %.0f em média".format(it) }
             ?: spot.avgMultiplier?.let { "%.1fx em média".format(it).replace('.', ',') } ?: return
         val dist = spot.distanceKm?.let { " a ${Geo.formatKm(it)}" } ?: ""
+        val bairro = if (s.showNeighborhood) Neighborhood.resolve(ctx, spot.center) else null
         val n = NotificationCompat.Builder(ctx, CH_SUGGESTION)
             .setSmallIcon(R.drawable.ic_stat_radar)
-            .setContentTitle("Região boa neste horário$dist")
+            .setContentTitle((bairro?.uppercase(Locale("pt", "BR"))?.let { "$it • " } ?: "") + "boa neste horário$dist")
             .setContentText("Histórico: $value (${spot.samples} leituras)")
             .setAutoCancel(true)
             .setContentIntent(openAppIntent(ctx))
