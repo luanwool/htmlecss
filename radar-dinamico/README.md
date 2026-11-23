@@ -5,7 +5,7 @@ segundo as **suas** regras. Exemplo: *"me avise de dinâmicos a partir de +R$ 6 
 
 ## Instalar no celular
 
-1. Baixe `dist/radar-dinamico-0.1.0.apk` (ou o artefato da última execução do GitHub Actions).
+1. Baixe `dist/radar-dinamico-0.2.0.apk` (ou o artefato da última execução do GitHub Actions).
 2. No Android, permita **"Instalar apps desconhecidos"** para o navegador ou gerenciador de arquivos.
 3. Abra o APK, instale e toque em **Iniciar radar**. Aceite a localização e as notificações.
 4. (Opcional) Ative o **leitor do Uber Driver**: Ajustes do Android → Acessibilidade → *Radar Dinâmico — leitor do Uber Driver*.
@@ -34,9 +34,15 @@ Requer Android 8.0 ou superior.
 
 A Uber **não oferece API pública** com os dinâmicos do app de motorista. Por isso o app junta três fontes, todas opcionais:
 
-1. **Leitor de tela (experimental)** — um Serviço de Acessibilidade que lê apenas os textos visíveis do app
-   `com.ubercab.driver` e procura padrões como `+R$ 6,00` ou `1,5x`. A leitura é gravada **na sua posição atual**
-   (não na zona exata do mapa). Ele não clica nem altera nada. Se a Uber desenhar os valores só como imagem no mapa,
+1. **Leitor de tela** — um Serviço de Acessibilidade que lê apenas os textos visíveis do app
+   `com.ubercab.driver` e procura padrões como `+R$ 6,00` ou `1,5x`. Cada rótulo vira uma zona separada, e a
+   **posição do rótulo na tela é convertida em coordenada** (supondo o mapa centralizado no seu carro, norte para
+   cima). Ajuste o zoom e a altura do carro em *Ajustes → Calibração do leitor*; lá também aparece o que foi lido e
+   a distância calculada. Ele não clica nem altera nada.
+1. **Avisos do Uber Driver** — lê as notificações do próprio Uber ("alta demanda", "preços mais altos…"). Funciona
+   com o mapa fora da tela, por exemplo durante uma corrida. Requer *acesso às notificações*.
+1. **Zonas lembradas** — zonas vistas no mapa continuam valendo pelo tempo de *Validade da leitura* (até 60 min), e o
+   radar reavalia conforme você se desloca: ao terminar uma corrida perto de uma zona vista antes, você é avisado. Se a Uber desenhar os valores só como imagem no mapa,
    o leitor não vai enxergá-los — por isso o status mostra a hora da última leitura, para você conferir se está funcionando.
    Ler a tela de outro app pode contrariar os Termos de Uso da Uber; use por sua conta e risco.
 2. **Registro manual** — um toque em *+R$ 6* (no app ou na notificação) grava o dinâmico onde você está.
