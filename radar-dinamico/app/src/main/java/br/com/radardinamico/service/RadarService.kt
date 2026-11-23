@@ -38,7 +38,7 @@ import java.util.Calendar
 class RadarService : Service(), LocationListener {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val lastAlertByCell = mutableMapOf<String, Long>()
+    private val lastAlertByCell = java.util.concurrent.ConcurrentHashMap<String, Long>()
     private var lastSuggestionAt = 0L
     private var lastSuggestedCell: String? = null
 
@@ -46,7 +46,7 @@ class RadarService : Service(), LocationListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_STOP -> { stopSelf(); return START_NOT_STICKY }
+            ACTION_STOP -> { Diagnostics.setRadarWanted(this, false); stopSelf(); return START_NOT_STICKY }
             ACTION_QUICK_MARK -> {
                 val value = SettingsStore.state.value.minMoney
                 markHere(this, SurgeKind.MONEY, value)
@@ -54,11 +54,18 @@ class RadarService : Service(), LocationListener {
             }
         }
         if (RadarState.running.value) return START_STICKY
-        ServiceCompat.startForeground(
-            this, Notifier.ID_SERVICE,
-            Notifier.serviceNotification(this, "Procurando dinâmicos…"),
-            if (Build.VERSION.SDK_INT >= 29) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0,
-        )
+        try {
+            ServiceCompat.startForeground(
+                this, Notifier.ID_SERVICE,
+                Notifier.serviceNotification(this, "Procurando dinâmicos…"),
+                if (Build.VERSION.SDK_INT >= 29) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0,
+            )
+        } catch (e: Exception) {
+            // Ex.: Android 14 recusa iniciar GPS em segundo plano. Não derruba o app (nem o leitor).
+            Diagnostics.error(this, "Iniciar radar", e)
+            stopSelf()
+            return START_NOT_STICKY
+        }
         RadarState.running.value = true
         startLocation()
         startLoops()
@@ -107,13 +114,16 @@ class RadarService : Service(), LocationListener {
                         .onFailure { RadarState.lastCommunitySync.value = "Falha: ${it.message}" }
                 }
                 evaluate()
-                maybeSuggest()
+                runCatching { maybeSuggest() }.onFailure { Diagnostics.error(this@RadarService, "Sugestões", it) }
                 delay(s.pollSeconds.coerceAtLeast(15) * 1000L)
             }
         }
     }
 
-    private fun evaluate() {
+    private fun evaluate() = runCatching { evaluateUnsafe() }.onFailure { Diagnostics.error(this, "Avaliar alertas", it) }
+
+    @Synchronized
+    private fun evaluateUnsafe() {
         val s = SettingsStore.state.value
         val repo = SurgeRepository.get(this)
         val now = System.currentTimeMillis()
@@ -163,14 +173,26 @@ class RadarService : Service(), LocationListener {
         const val ACTION_STOP = "br.com.radardinamico.STOP"
         const val ACTION_QUICK_MARK = "br.com.radardinamico.QUICK_MARK"
 
-        fun start(ctx: Context) =
+        fun start(ctx: Context) {
+            Diagnostics.setRadarWanted(ctx, true)
             ContextCompat.startForegroundService(ctx, Intent(ctx, RadarService::class.java))
+        }
 
-        fun stop(ctx: Context) = ctx.stopService(Intent(ctx, RadarService::class.java))
+        fun stop(ctx: Context) {
+            Diagnostics.setRadarWanted(ctx, false)
+            ctx.stopService(Intent(ctx, RadarService::class.java))
+        }
+
+        /** Religa o radar se o motorista tinha deixado ligado (ex.: depois de atualizar o app). */
+        fun ensureRunning(ctx: Context) {
+            if (RadarState.running.value || !Diagnostics.radarWanted(ctx)) return
+            runCatching { ContextCompat.startForegroundService(ctx, Intent(ctx, RadarService::class.java)) }
+                .onFailure { Diagnostics.error(ctx, "Religar radar automaticamente", it) }
+        }
 
         /** Registra um dinâmico na posição atual (botão "Marcar aqui"). */
         fun markHere(ctx: Context, kind: SurgeKind, value: Double): Boolean {
-            val here = RadarState.location.value ?: return false
+            val here = RadarState.location.value ?: Diagnostics.lastKnownLocation(ctx) ?: return false
             val e = SurgeRepository.get(ctx).insert(
                 SurgeEvent(timestamp = System.currentTimeMillis(), lat = here.lat, lng = here.lng,
                     kind = kind, value = value, source = SurgeSource.MANUAL)

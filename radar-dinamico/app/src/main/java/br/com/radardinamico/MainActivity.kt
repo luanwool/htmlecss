@@ -40,6 +40,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Se o radar estava ligado antes (ex.: o app foi atualizado), religa ao abrir.
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) br.com.radardinamico.service.RadarService.ensureRunning(this)
         setContent {
             RadarTheme {
                 var tab by rememberSaveable { mutableIntStateOf(0) }

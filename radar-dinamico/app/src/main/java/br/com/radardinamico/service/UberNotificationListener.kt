@@ -16,6 +16,10 @@ import br.com.radardinamico.data.SurgeSource
 class UberNotificationListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
+        try { handle(sbn) } catch (t: Throwable) { Diagnostics.error(this, "Avisos do Uber", t) }
+    }
+
+    private fun handle(sbn: StatusBarNotification) {
         if (sbn.packageName !in UberReaderService.UBER_PACKAGES) return
         val s = SettingsStore.state.value
         if (!s.sourceUberNotifications) return

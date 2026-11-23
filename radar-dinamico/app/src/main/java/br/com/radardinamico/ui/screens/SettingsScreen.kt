@@ -212,6 +212,37 @@ fun SettingsScreen(modifier: Modifier) {
         }
 
         item {
+            var lastError by remember { mutableStateOf(br.com.radardinamico.service.Diagnostics.lastError(ctx)) }
+            val readerStatus by br.com.radardinamico.service.RadarState.readerStatus.collectAsState()
+            val running by br.com.radardinamico.service.RadarState.running.collectAsState()
+            val debug2 by br.com.radardinamico.service.RadarState.readerDebug.collectAsState()
+            SectionCard("Diagnóstico") {
+                val report = buildString {
+                    appendLine(br.com.radardinamico.service.Diagnostics.deviceInfo(ctx))
+                    appendLine("Radar: ${if (running) "ligado" else "parado"}")
+                    appendLine("Leitor (Acessibilidade): ${if (isReaderEnabled(ctx)) "ativado" else "desativado"} • " +
+                        "conectado: ${br.com.radardinamico.service.RadarState.readerConnectedAt.value != null}")
+                    appendLine("Status do leitor: ${readerStatus ?: "-"}")
+                    appendLine("Acesso a notificações: ${isNotificationReaderEnabled(ctx)}")
+                    appendLine("GPS: ${br.com.radardinamico.service.RadarState.location.value?.let { "ok" } ?: "sem posição"}")
+                    debug2.take(5).forEach { appendLine("Leitura: $it") }
+                    appendLine("Último erro: ${lastError ?: "nenhum"}")
+                }
+                Text(report, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row {
+                    TextButton(onClick = {
+                        val cm = ctx.getSystemService(android.content.ClipboardManager::class.java)
+                        cm.setPrimaryClip(android.content.ClipData.newPlainText("Diagnóstico Radar Dinâmico", report))
+                        Toast.makeText(ctx, "Diagnóstico copiado — cole na conversa", Toast.LENGTH_SHORT).show()
+                    }) { Text("Copiar diagnóstico") }
+                    if (lastError != null) TextButton(onClick = {
+                        br.com.radardinamico.service.Diagnostics.clearError(ctx); lastError = null
+                    }) { Text("Limpar erro") }
+                }
+            }
+        }
+
+        item {
             SectionCard("Dados") {
                 Text("${SurgeRepository.get(ctx).count()} leituras salvas no aparelho.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(onClick = { confirmClear = true }) { Text("Apagar histórico", color = RadarColors.Danger) }

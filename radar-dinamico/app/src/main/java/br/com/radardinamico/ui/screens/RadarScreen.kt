@@ -81,7 +81,7 @@ fun RadarScreen(modifier: Modifier, onOpenSettings: () -> Unit) {
 
     var tick by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var permTick by remember { mutableIntStateOf(0) }
-    LaunchedEffect(Unit) { while (true) { delay(15_000); tick = System.currentTimeMillis(); permTick++ } }
+    LaunchedEffect(Unit) { while (true) { delay(5_000); tick = System.currentTimeMillis(); permTick++ } }
 
     fun granted(p: String) = ContextCompat.checkSelfPermission(ctx, p) == PackageManager.PERMISSION_GRANTED
     val hasLocation = remember(permTick) { granted(Manifest.permission.ACCESS_FINE_LOCATION) }
@@ -91,6 +91,8 @@ fun RadarScreen(modifier: Modifier, onOpenSettings: () -> Unit) {
     val readerOn = remember(permTick) { isReaderEnabled(ctx) }
     val notifReaderOn = remember(permTick) { isNotificationReaderEnabled(ctx) }
     val uberNotif by RadarState.lastUberNotification.collectAsState()
+    val readerConnectedAt by RadarState.readerConnectedAt.collectAsState()
+    val readerStatus by RadarState.readerStatus.collectAsState()
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         permTick++
@@ -170,11 +172,24 @@ fun RadarScreen(modifier: Modifier, onOpenSettings: () -> Unit) {
                     ctx.startActivity(Intent(AndroidSettings.ACTION_APP_NOTIFICATION_SETTINGS)
                         .putExtra(AndroidSettings.EXTRA_APP_PACKAGE, ctx.packageName))
                 }
+                if (!running) {
+                    StatusRow(false, "Radar parado", "O leitor e os alertas precisam do radar ligado — toque em Iniciar radar") {
+                        requestAndStart()
+                    }
+                }
                 if (settings.sourceUberScreen) {
+                    // Ligado nas configurações, mas o Android não está executando (comum após atualizar o app).
+                    val stuck = readerOn && readerConnectedAt == null &&
+                        tick - br.com.radardinamico.service.Diagnostics.processStartedAt > 8_000
                     StatusRow(
-                        readerOn, "Leitor de tela do Uber",
-                        if (!readerOn) "Toque para ativar em Acessibilidade"
-                        else lastRead?.let { "Última leitura ${timeAgo(it, tick)}" } ?: "Ativo — abra o Uber Driver",
+                        readerOn && !stuck, "Leitor de tela do Uber",
+                        when {
+                            !readerOn -> "Desligado — toque para ativar em Acessibilidade. Se estiver bloqueado, " +
+                                "vá em Informações do app → ⋮ → Permitir configurações restritas."
+                            stuck -> "O Android parou o leitor. Toque, DESATIVE e ATIVE de novo o Radar Dinâmico em Acessibilidade."
+                            else -> (readerStatus ?: "Ativo — abra o Uber Driver") +
+                                (lastRead?.let { " • ${timeAgo(it, tick)}" } ?: "")
+                        },
                     ) { ctx.startActivity(Intent(AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS)) }
                 }
                 if (settings.sourceUberNotifications) {

@@ -5,7 +5,7 @@ segundo as **suas** regras. Exemplo: *"me avise de dinâmicos a partir de +R$ 6 
 
 ## Instalar no celular
 
-1. Baixe `dist/radar-dinamico-0.3.0.apk` (ou o artefato da última execução do GitHub Actions).
+1. Baixe `dist/radar-dinamico-0.3.1.apk` (ou o artefato da última execução do GitHub Actions).
 2. No Android, permita **"Instalar apps desconhecidos"** para o navegador ou gerenciador de arquivos.
 3. Abra o APK, instale e toque em **Iniciar radar**. Aceite a localização e as notificações.
 4. (Opcional) Ative o **leitor do Uber Driver**: Ajustes do Android → Acessibilidade → *Radar Dinâmico — leitor do Uber Driver*.

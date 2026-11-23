@@ -8,6 +8,7 @@ import org.osmdroid.config.Configuration
 class RadarApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        br.com.radardinamico.service.Diagnostics.installCrashHandler(this)
         SettingsStore.init(this)
         Notifier.createChannels(this)
         Configuration.getInstance().userAgentValue = packageName
