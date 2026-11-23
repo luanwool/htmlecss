@@ -75,6 +75,11 @@ class SiteSettings
         'referral.min_referrer_balance' => 'int', // centavos (impede créditos irrelevantes)
         'referral.max_percent_per_visit' => 'int', // teto em % por atendimento
         'referral.message' => 'text',           // texto visível para o indicado
+        // WhatsApp (envio de confirmação/aviso de agendamento)
+        'whatsapp.driver' => 'string',          // manual (grátis, link wa.me) | cloud (Meta Cloud API)
+        'whatsapp.auto_send_on_booking' => 'bool', // se driver=cloud; no manual sempre mostra link
+        'whatsapp.cloud_phone_id' => 'string',  // ID do número no WhatsApp Business (Meta)
+        'whatsapp.cloud_token' => 'string',     // token de acesso (fica só no servidor)
     ];
 
     protected ?array $values = null;

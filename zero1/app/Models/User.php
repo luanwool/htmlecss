@@ -15,7 +15,7 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
-    protected $fillable = ['name', 'email', 'phone', 'password', 'is_active'];
+    protected $fillable = ['name', 'email', 'phone', 'password', 'is_active', 'must_change_password', 'password_set_at'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -26,6 +26,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'must_change_password' => 'boolean',
+            'password_set_at' => 'datetime',
         ];
     }
 

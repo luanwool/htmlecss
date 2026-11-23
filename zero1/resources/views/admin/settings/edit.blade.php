@@ -134,6 +134,22 @@
             </div>
         </section>
 
+        <section id="whatsapp" class="card scroll-mt-24">
+            <h2 class="font-semibold">Confirmação por WhatsApp</h2>
+            <p class="mt-1 text-sm text-stone">
+                <strong>Modo manual</strong> (grátis): depois de cada agendamento a tela do ADM mostra um link “Enviar no WhatsApp” — um toque abre a conversa com a mensagem pronta. Zero custo, zero API, zero risco de banimento.<br>
+                <strong>Modo Cloud API</strong> (Meta): envia automaticamente. Precisa de conta no WhatsApp Business, número verificado e um template aprovado — o free tier da Meta cobre 1.000 conversas/mês de serviço.
+            </p>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <x-form.select name="s[whatsapp_driver]" label="Driver" :value="$settings->get('whatsapp.driver', 'manual')" :options="['manual' => 'Manual (link wa.me)', 'cloud' => 'Cloud API (Meta)']" />
+                <x-form.input name="s[whatsapp_cloud_phone_id]" label="Phone ID (Cloud API)" :value="$settings->get('whatsapp.cloud_phone_id')" hint="Só para o driver cloud." />
+                <x-form.input name="s[whatsapp_cloud_token]" type="password" label="Access Token (Cloud API)" :value="$settings->get('whatsapp.cloud_token')" hint="Fica só no servidor. Nunca compartilhe por mensagem." />
+            </div>
+            <div class="mt-4">
+                <x-form.checkbox name="s[whatsapp_auto_send_on_booking]" label="Enviar confirmação automática (somente no driver Cloud)" :checked="(bool) $settings->get('whatsapp.auto_send_on_booking')" />
+            </div>
+        </section>
+
                 <section id="indicacoes" class="card scroll-mt-24">
             <h2 class="font-semibold">Programa de indicação</h2>
             <p class="mt-1 text-sm text-stone">Cada cliente ganha um código único. Ao concluir o primeiro atendimento avulso de um indicado, ambos ganham crédito, aplicado automaticamente no próximo atendimento.</p>

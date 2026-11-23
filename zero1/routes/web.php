@@ -45,6 +45,10 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/sair', [Auth\LoginController::class, 'destroy'])->name('logout');
+    // Troca forçada de senha (após login com senha temporária gerada pelo ADM).
+    Route::get('/trocar-senha', [Account\ProfileController::class, 'showForcedChange'])->name('password.change');
+    Route::put('/trocar-senha', [Account\ProfileController::class, 'updateForcedChange'])
+        ->middleware('throttle:10,1')->name('password.change.update');
     Route::get('/email/verificar', [Auth\EmailVerificationController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verificar/{id}/{hash}', [Auth\EmailVerificationController::class, 'verify'])
         ->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
@@ -181,6 +185,8 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission:'.P::CustomersView->value)->group(function () {
             Route::get('clientes', [Admin\CustomerController::class, 'index'])->name('customers.index');
             Route::get('clientes/{customer}', [Admin\CustomerController::class, 'show'])->name('customers.show');
+            Route::post('clientes/{customer}/resetar-senha', [Admin\CustomerController::class, 'resetPassword'])
+                ->middleware('throttle:10,1')->name('customers.reset-password');
         });
 
         Route::middleware('permission:'.P::ContentManage->value)->prefix('conteudo')->group(function () {

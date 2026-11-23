@@ -45,7 +45,7 @@ class ReferralProgramTest extends TestCase
 
         // Cadastro na mesma sessão
         $this->post('/cadastro', [
-            'name' => 'Bob', 'email' => 'bob@example.com', 'phone' => '21999990000',
+            'name' => 'Bob', 'email' => 'bob@example.com', 'phone' => '21999990000', 'cpf' => '390.533.447-05',
             'password' => 'senhaForte1', 'password_confirmation' => 'senhaForte1', 'accept_terms' => '1',
         ])->assertRedirect(route('account.dashboard'));
 

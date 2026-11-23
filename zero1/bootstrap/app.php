@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\ForcePasswordChange;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Hostinger usa proxy reverso (LiteSpeed/CDN): confia nos cabeçalhos X-Forwarded-*.
         $middleware->trustProxies(at: '*');
-        $middleware->web(append: [SecurityHeaders::class, EnsureUserIsActive::class]);
+        $middleware->web(append: [SecurityHeaders::class, EnsureUserIsActive::class, ForcePasswordChange::class]);
         $middleware->validateCsrfTokens(except: ['webhooks/*']);
         $middleware->encryptCookies(except: [\App\Services\Referrals\ReferralProgram::COOKIE]);
         $middleware->alias([

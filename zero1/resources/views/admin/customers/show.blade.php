@@ -4,9 +4,25 @@
             <h2 class="font-semibold">Contato</h2>
             <p><span class="text-stone">E-mail:</span> {{ $customer->email ?? '—' }}</p>
             <p><span class="text-stone">Telefone:</span> {{ $customer->phone ?? '—' }}</p>
+            <p><span class="text-stone">CPF:</span> {{ \App\Rules\Cpf::format($customer->cpf) ?? '—' }}</p>
             <p><span class="text-stone">Origem:</span> {{ ucfirst($customer->origin) }}</p>
             <p><span class="text-stone">Termos aceitos:</span> {{ \App\Support\BusinessTime::format($customer->terms_accepted_at) }}</p>
             <p><span class="text-stone">Marketing:</span> {{ $customer->marketing_consent_at ? 'consentiu em '.\App\Support\BusinessTime::format($customer->marketing_consent_at, 'd/m/Y') : 'não' }}</p>
+            @if ($customer->user_id)
+                @if (session('temp_password'))
+                    <div class="rounded-xl border border-amber-500/40 bg-amber-100/40 p-3 text-xs">
+                        <p class="font-semibold text-ink">Senha temporária (mostrada só agora):</p>
+                        <p class="mt-1 select-all font-mono text-base tracking-wide text-ink">{{ session('temp_password') }}</p>
+                        <p class="mt-2 text-stone">Passe ao cliente por WhatsApp/pessoalmente. Na próxima entrada, ele será levado à tela de nova senha.</p>
+                    </div>
+                @endif
+                <form method="POST" action="{{ route('admin.customers.reset-password', $customer) }}" class="pt-2" onsubmit="return confirm('Gerar uma nova senha temporária para {{ $customer->name }}? A senha atual deixará de valer.')">
+                    @csrf
+                    <button class="btn-dark min-h-9 w-full px-4 text-xs" type="submit">Gerar senha temporária</button>
+                </form>
+            @else
+                <p class="text-xs text-stone">Sem login de cliente ainda — nada a redefinir.</p>
+            @endif
         </section>
         <section class="card space-y-6 lg:col-span-2">
             @php

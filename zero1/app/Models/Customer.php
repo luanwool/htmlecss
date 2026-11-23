@@ -14,9 +14,15 @@ class Customer extends Model
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'name', 'email', 'phone', 'internal_notes', 'origin',
+        'user_id', 'name', 'email', 'phone', 'cpf', 'internal_notes', 'origin',
         'terms_accepted_at', 'privacy_accepted_at', 'marketing_consent_at', 'created_by', 'referred_by_customer_id', 'referral_cookie_code',
     ];
+
+    /** CPF mascarado para listagens: 123.***.***-00. Nunca expomos o CPF cheio fora do dono. */
+    public function maskedCpf(): ?string
+    {
+        return \App\Rules\Cpf::mask($this->cpf);
+    }
 
     protected function casts(): array
     {

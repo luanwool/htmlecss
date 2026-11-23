@@ -20,6 +20,7 @@ class AuthTest extends TestCase
     {
         return array_merge([
             'name' => 'Cliente Novo', 'email' => 'novo@example.com', 'phone' => '(21) 99999-0000',
+            'cpf' => '390.533.447-05',
             'password' => 'senhaForte1', 'password_confirmation' => 'senhaForte1', 'accept_terms' => '1',
         ], $over);
     }
@@ -109,5 +110,57 @@ class AuthTest extends TestCase
             return true;
         });
         $this->assertTrue(Hash::check('novaSenha9', $user->fresh()->password));
+    }
+
+    public function test_registration_requires_valid_cpf_and_rejects_invalid_check_digits(): void
+    {
+        $this->post('/cadastro', $this->registration(['cpf' => '11111111111']))->assertSessionHasErrors('cpf');
+        $this->post('/cadastro', $this->registration(['cpf' => '123.456.789-00']))->assertSessionHasErrors('cpf');
+        $this->post('/cadastro', $this->registration())->assertRedirect(route('account.dashboard'));
+        $this->assertSame('39053344705', Customer::firstOrFail()->cpf);
+    }
+
+    public function test_registration_blocks_duplicate_cpf(): void
+    {
+        $this->post('/cadastro', $this->registration())->assertRedirect(route('account.dashboard'));
+        auth()->logout();
+        // Mesmo CPF, mesmo quando digitado com outra máscara, com e-mail diferente.
+        $this->post('/cadastro', $this->registration(['email' => 'outro@example.com', 'cpf' => '390.533.447-05']))
+            ->assertSessionHasErrors('cpf');
+        $this->assertSame(1, Customer::whereNotNull('cpf')->count());
+    }
+
+    public function test_forced_password_change_blocks_other_routes_and_clears_flag_on_update(): void
+    {
+        $user = User::factory()->create(['password' => 'tempTEMP1', 'must_change_password' => true]);
+        $user->assignRole(Role::Customer->value);
+        $this->actingAs($user);
+
+        $this->get('/minha-conta')->assertRedirect(route('password.change'));
+        $this->get(route('password.change'))->assertOk()->assertSee('Nova senha');
+        $this->put(route('password.change.update'), [
+            'password' => 'novaSenha9', 'password_confirmation' => 'novaSenha9',
+        ])->assertRedirect();
+
+        $u = $user->fresh();
+        $this->assertFalse($u->must_change_password);
+        $this->assertTrue(Hash::check('novaSenha9', $u->password));
+        // Navegação volta a funcionar.
+        $this->get('/minha-conta')->assertOk();
+    }
+
+    public function test_admin_can_issue_temporary_password_for_customer(): void
+    {
+        $owner = User::factory()->create();
+        $owner->assignRole(Role::Owner->value);
+        $target = User::factory()->create();
+        $target->assignRole(Role::Customer->value);
+        $customer = Customer::create(['user_id' => $target->id, 'name' => $target->name, 'email' => $target->email, 'origin' => 'site']);
+
+        $this->actingAs($owner)
+            ->post(route('admin.customers.reset-password', $customer))
+            ->assertRedirect(route('admin.customers.show', $customer))
+            ->assertSessionHas('temp_password');
+        $this->assertTrue($target->fresh()->must_change_password);
     }
 }

@@ -57,9 +57,43 @@ class ProfileController extends Controller
             'current_password' => ['required', 'current_password'],
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
-        $request->user()->update(['password' => $request->password]);
+        $request->user()->update([
+            'password' => $request->password,
+            'must_change_password' => false,
+            'password_set_at' => now(),
+        ]);
         $audit->log('auth.password_changed', $request->user());
 
         return back()->with('status', 'Senha alterada.');
+    }
+
+    /**
+     * Tela separada para trocar a senha temporária gerada pela barbearia.
+     *
+     * Diferente da troca normal, aqui não pedimos a senha atual (o cliente perdeu o acesso;
+     * já passou pelo login com a senha provisória). Enquanto `must_change_password` for true,
+     * o middleware `ForcePasswordChange` manda toda navegação para cá, então essa é a única
+     * tela acessível antes de redefinir.
+     */
+    public function showForcedChange(): \Illuminate\View\View
+    {
+        return view('account.password-change');
+    }
+
+    public function updateForcedChange(Request $request, AuditLogger $audit): RedirectResponse
+    {
+        abort_unless($request->user()->must_change_password, 403);
+        $request->validate([
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+        $request->user()->update([
+            'password' => $request->password,
+            'must_change_password' => false,
+            'password_set_at' => now(),
+        ]);
+        $audit->log('auth.password_reset_completed', $request->user());
+
+        return redirect()->intended($request->user()->homeRoute())
+            ->with('status', 'Senha redefinida com sucesso.');
     }
 }
