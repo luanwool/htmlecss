@@ -1,0 +1,183 @@
+@php $s = fn ($k) => $settings->get($k); @endphp
+<x-layouts.admin title="Configurações">
+    <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" class="max-w-5xl space-y-6" data-loading>
+        @csrf @method('PUT')
+
+        <section id="empresa" class="card scroll-mt-24">
+            <h2 class="font-semibold">Empresa e contato</h2>
+            <p class="mt-1 text-sm text-stone">Endereço e telefone foram pré-preenchidos com dados públicos para conferência dos proprietários.</p>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
+                <x-form.input name="s[business_name]" label="Nome" :value="$s('business.name')" required class="lg:col-span-3" />
+                <x-form.input name="s[business_legal_name]" label="Razão social" :value="$s('business.legal_name')" class="lg:col-span-3" />
+                <x-form.input name="s[business_document]" label="CNPJ (opcional, exibido no rodapé)" :value="$s('business.document')" class="lg:col-span-2" />
+                <x-form.input name="s[business_street]" label="Logradouro" :value="$s('business.street')" class="lg:col-span-3" />
+                <x-form.input name="s[business_number]" label="Número" :value="$s('business.number')" class="lg:col-span-1" />
+                <x-form.input name="s[business_district]" label="Bairro" :value="$s('business.district')" class="lg:col-span-2" />
+                <x-form.input name="s[business_city]" label="Cidade" :value="$s('business.city')" class="lg:col-span-2" />
+                <x-form.input name="s[business_state]" label="UF" :value="$s('business.state')" maxlength="2" class="lg:col-span-1" />
+                <x-form.input name="s[business_postal_code]" label="CEP" :value="$s('business.postal_code')" class="lg:col-span-1" />
+                <x-form.input name="s[business_phone]" label="Telefone exibido" :value="$s('business.phone')" class="lg:col-span-2" />
+                <x-form.input name="s[business_whatsapp]" label="WhatsApp (DDI+DDD+número)" :value="$s('business.whatsapp')" inputmode="numeric" class="lg:col-span-2" />
+                <x-form.input name="s[business_email]" type="email" label="E-mail" :value="$s('business.email')" class="lg:col-span-2" />
+                <x-form.input name="s[business_whatsapp_message]" label="Mensagem inicial do WhatsApp" :value="$s('business.whatsapp_message')" class="lg:col-span-6" />
+                <x-form.input name="s[business_instagram]" type="url" label="Instagram (URL)" :value="$s('business.instagram')" placeholder="https://instagram.com/…" class="lg:col-span-3" />
+                <x-form.input name="s[business_maps_url]" type="url" label="Link do Google Maps" :value="$s('business.maps_url')" class="lg:col-span-3" />
+                <x-form.input name="s[business_latitude]" label="Latitude (opcional, SEO)" :value="$s('business.latitude')" class="lg:col-span-3" />
+                <x-form.input name="s[business_longitude]" label="Longitude (opcional, SEO)" :value="$s('business.longitude')" class="lg:col-span-3" />
+            </div>
+        </section>
+
+        <section id="horarios" class="card scroll-mt-24">
+            <h2 class="font-semibold">Horário de funcionamento</h2>
+            <p class="mt-1 text-sm text-stone">Horário público da barbearia. As escalas de cada profissional são configuradas separadamente (Fase 2) e podem ser diferentes.</p>
+            <div class="mt-5 divide-y divide-black/[.06]">
+                @foreach ($hours as $h)
+                    <div class="grid grid-cols-2 items-center gap-3 py-3 sm:grid-cols-[10rem_7rem_1fr_1fr]">
+                        <span class="font-medium">{{ $h->dayName() }}</span>
+                        <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="hours[{{ $h->weekday }}][is_closed]" value="1" class="form-check" @checked(old("hours.{$h->weekday}.is_closed", $h->is_closed))> Fechado</label>
+                        <label class="text-sm"><span class="sr-only">Abre</span><input type="time" name="hours[{{ $h->weekday }}][opens_at]" value="{{ old("hours.{$h->weekday}.opens_at", $h->opens_at ? substr($h->opens_at, 0, 5) : '') }}" class="form-input"></label>
+                        <label class="text-sm"><span class="sr-only">Fecha</span><input type="time" name="hours[{{ $h->weekday }}][closes_at]" value="{{ old("hours.{$h->weekday}.closes_at", $h->closes_at ? substr($h->closes_at, 0, 5) : '') }}" class="form-input"></label>
+                        @error("hours.{$h->weekday}.opens_at")<p class="form-error col-span-full">{{ $message }}</p>@enderror
+                    </div>
+                @endforeach
+            </div>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                <x-form.checkbox name="business_hours_confirmed" label="Horário confirmado pelos proprietários" :checked="(bool) $s('business.hours_confirmed')" hint="Enquanto desmarcado, o site informa que o horário está sujeito a confirmação." />
+                <x-form.input name="s[business_hours_note]" label="Observação (feriados etc.)" :value="$s('business.hours_note')" />
+            </div>
+        </section>
+
+        <section id="agenda" class="card scroll-mt-24">
+            <h2 class="font-semibold">Agenda e políticas</h2>
+            <p class="mt-1 text-sm text-stone">Valores iniciais são padrões técnicos — ajuste conforme as regras reais da barbearia.</p>
+            @php $p = app(\App\Services\Booking\BookingPolicy::class); @endphp
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <x-form.select name="s[booking_slot_interval]" label="Granularidade dos horários" :value="$p->slotInterval()" :options="[5 => '5 min', 10 => '10 min', 15 => '15 min', 20 => '20 min', 30 => '30 min']" />
+                <x-form.input name="s[booking_min_advance_minutes]" type="number" min="0" label="Antecedência mínima (min)" :value="$p->minAdvanceMinutes()" />
+                <x-form.input name="s[booking_max_advance_days]" type="number" min="1" label="Janela máxima de reserva (dias)" :value="$p->maxAdvanceDays()" />
+                <x-form.input name="s[booking_cancel_min_hours]" type="number" min="0" label="Cancelar/reagendar até (horas antes)" :value="$p->cancelMinHours()" />
+                <x-form.input name="s[booking_max_open_per_customer]" type="number" min="1" label="Agendamentos futuros por cliente" :value="$p->maxOpenPerCustomer()" />
+                <x-form.input name="s[booking_reminder_hours]" label="Lembretes por e-mail (horas antes)" :value="implode(',', $p->reminderHours())" hint="Ex.: 24,2" />
+                <x-form.select name="s[booking_assignment_policy]" label="“Qualquer barbeiro disponível”" :value="$p->assignmentPolicy()" :options="['balance' => 'Equilibrar carga do dia', 'first' => 'Primeiro disponível (ordem de cadastro)']" />
+                <x-form.select name="s[booking_unpaid_policy]" label="Agendamentos de plano em mês não pago" :value="$p->unpaidPolicy()" :options="['flag' => 'Manter e sinalizar para regularização', 'cancel' => 'Cancelar e avisar o cliente']" />
+                <x-form.input name="s[booking_walk_in_past_hours]" type="number" min="0" label="Lançamento retroativo de balcão (horas)" :value="$p->walkInPastHours()" />
+            </div>
+            <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                <x-form.checkbox name="booking_late_cancel_forfeits" label="Cancelamento fora do prazo consome o crédito do plano" :checked="$p->lateCancelForfeits()" />
+                <x-form.checkbox name="booking_no_show_consumes_credit" label="Falta (no-show) consome o crédito do plano" :checked="$p->noShowConsumesCredit()" />
+            </div>
+        </section>
+
+        <section id="marca" class="card scroll-mt-24">
+            <h2 class="font-semibold">Identidade visual</h2>
+            <p class="mt-1 text-sm text-stone">A paleta atual é provisória (grafite + off-white + acento). Envie o logo e a cor oficial quando disponíveis.</p>
+            <div class="mt-5 grid gap-6 sm:grid-cols-2">
+                <div>
+                    <p class="form-label">Logo oficial (PNG/WebP com fundo transparente)</p>
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-20 w-40 items-center justify-center rounded-xl bg-ink p-3">
+                            <img id="logo-preview" @if ($logo) src="{{ $logo->url(480) }}" @else hidden @endif alt="" class="max-h-full max-w-full">
+                            @unless ($logo)<x-wordmark />@endunless
+                        </div>
+                        <input type="file" name="logo" accept="image/png,image/webp,image/jpeg" data-preview="logo-preview" class="text-sm">
+                    </div>
+                    @error('logo')<p class="form-error">{{ $message }}</p>@enderror
+                </div>
+                <div class="space-y-5">
+                    <div>
+                        <label for="accent" class="form-label">Cor de acento</label>
+                        <div class="flex items-center gap-3">
+                            <input id="accent" type="color" name="s[brand_accent_color]" value="{{ old('s.brand_accent_color', $settings->accentColor()) }}" class="h-11 w-16 cursor-pointer rounded-lg border border-black/15">
+                            <span class="text-sm text-stone">Usada em botões e destaques.</span>
+                        </div>
+                    </div>
+                    <x-form.input name="s[brand_tagline]" label="Frase do rodapé" :value="$s('brand.tagline')" />
+                </div>
+            </div>
+        </section>
+
+        <section id="seo" class="card scroll-mt-24">
+            <h2 class="font-semibold">SEO e compartilhamento</h2>
+            <div class="mt-5 grid gap-5">
+                <x-form.input name="s[seo_title]" label="Título (até 70 caracteres)" :value="$s('seo.title')" maxlength="70" data-count="70" />
+                <x-form.textarea name="s[seo_description]" label="Descrição (até 170 caracteres)" :value="$s('seo.description')" rows="2" maxlength="170" data-count="170" />
+                <div>
+                    <p class="form-label">Imagem de compartilhamento (1200×630, foto real)</p>
+                    <div class="flex items-center gap-4">
+                        <img id="og-preview" @if ($ogImage) src="{{ $ogImage->url(480) }}" @else hidden @endif alt="" class="h-20 rounded-lg object-cover">
+                        <input type="file" name="og_image" accept="image/jpeg,image/png,image/webp" data-preview="og-preview" class="text-sm">
+                    </div>
+                    @error('og_image')<p class="form-error">{{ $message }}</p>@enderror
+                </div>
+                <x-form.checkbox name="seo_indexable" label="Permitir indexação por buscadores (somente em produção)" :checked="(bool) $s('seo.indexable')" />
+            </div>
+        </section>
+
+        <section id="pagamentos" class="card scroll-mt-24">
+            <h2 class="font-semibold">Pagamentos (Mercado Pago)</h2>
+            <p class="mt-1 text-sm text-stone">Enquanto não houver credenciais salvas, o sistema continua no <strong>modo simulado</strong> (nenhuma cobrança real).
+                Criar as chaves em <a class="underline" target="_blank" rel="noopener" href="https://www.mercadopago.com.br/developers/panel">mercadopago.com.br/developers/panel</a>.</p>
+            @php $mpEnabled = $settings->get('mp.enabled'); $mpEnv = $settings->get('mp.env', 'sandbox'); @endphp
+            <div class="mt-5 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3 text-sm">
+                <span class="size-2.5 rounded-full {{ $mpEnabled ? 'bg-emerald-400' : 'bg-amber-400' }}"></span>
+                <span class="flex-1">{{ $mpEnabled ? 'Credenciais ativas · ambiente '.$mpEnv : 'Modo simulado (aguardando credenciais)' }}</span>
+                @if ($mpEnabled)<span class="badge-green">Online</span>@else<span class="badge-amber">Sandbox</span>@endif
+            </div>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                <x-form.select name="s[mp_env]" label="Ambiente" :value="$mpEnv" :options="['sandbox' => 'Sandbox (teste)', 'production' => 'Produção (cobranças reais)']" />
+                <x-form.input name="s[mp_public_key]" label="Public Key" :value="$settings->get('mp.public_key')" placeholder="APP_USR-..." autocomplete="off" />
+                <x-form.input name="s[mp_access_token]" type="password" label="Access Token" :value="$settings->get('mp.access_token')" placeholder="APP_USR-..." autocomplete="off" class="sm:col-span-2" hint="Nunca compartilhe estas chaves por mensagem." />
+                <x-form.input name="s[mp_webhook_secret]" type="password" label="Chave secreta do webhook" :value="$settings->get('mp.webhook_secret')" autocomplete="off" class="sm:col-span-2" hint="Apontar o webhook do Mercado Pago para {{ url('/webhooks/pagamentos/mercadopago') }}" />
+            </div>
+            <div class="mt-5">
+                <x-form.checkbox name="mp_enabled" label="Usar o Mercado Pago (desmarque para voltar ao modo simulado)" :checked="(bool) $mpEnabled" hint="Enquanto o adaptador oficial não entra, as chaves ficam salvas e o modo simulado continua ativo." />
+            </div>
+        </section>
+
+        <section id="whatsapp" class="card scroll-mt-24">
+            <h2 class="font-semibold">Confirmação por WhatsApp</h2>
+            <p class="mt-1 text-sm text-stone">
+                <strong>Modo manual</strong> (grátis): depois de cada agendamento a tela do ADM mostra um link “Enviar no WhatsApp” — um toque abre a conversa com a mensagem pronta. Zero custo, zero API, zero risco de banimento.<br>
+                <strong>Modo Cloud API</strong> (Meta): envia automaticamente. Precisa de conta no WhatsApp Business, número verificado e um template aprovado — o free tier da Meta cobre 1.000 conversas/mês de serviço.
+            </p>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <x-form.select name="s[whatsapp_driver]" label="Driver" :value="$settings->get('whatsapp.driver', 'manual')" :options="['manual' => 'Manual (link wa.me)', 'cloud' => 'Cloud API (Meta)']" />
+                <x-form.input name="s[whatsapp_cloud_phone_id]" label="Phone ID (Cloud API)" :value="$settings->get('whatsapp.cloud_phone_id')" hint="Só para o driver cloud." />
+                <x-form.input name="s[whatsapp_cloud_token]" type="password" label="Access Token (Cloud API)" :value="$settings->get('whatsapp.cloud_token')" hint="Fica só no servidor. Nunca compartilhe por mensagem." />
+            </div>
+            <div class="mt-4">
+                <x-form.checkbox name="s[whatsapp_auto_send_on_booking]" label="Enviar confirmação automática (somente no driver Cloud)" :checked="(bool) $settings->get('whatsapp.auto_send_on_booking')" />
+            </div>
+        </section>
+
+                <section id="indicacoes" class="card scroll-mt-24">
+            <h2 class="font-semibold">Programa de indicação</h2>
+            <p class="mt-1 text-sm text-stone">Cada cliente ganha um código único. Ao concluir o primeiro atendimento avulso de um indicado, ambos ganham crédito, aplicado automaticamente no próximo atendimento.</p>
+            @php $re = $settings->get('referral.enabled'); @endphp
+            <div class="mt-4">
+                <x-form.checkbox name="referral_enabled" label="Ativar programa de indicação" :checked="(bool) $re" hint="Desative para suspender a emissão de novos créditos; os já emitidos continuam valendo até a validade." />
+            </div>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <x-form.input name="s[referral_referred_percent]" type="number" min="0" max="100" label="Desconto para o indicado (%)" :value="$settings->get('referral.referred_percent', 30)" />
+                <x-form.input name="s[referral_referrer_percent]" type="number" min="0" max="100" label="Crédito para o indicador (%)" :value="$settings->get('referral.referrer_percent', 10)" />
+                <x-form.input name="s[referral_max_percent_per_visit]" type="number" min="0" max="100" label="Teto por atendimento (%)" :value="$settings->get('referral.max_percent_per_visit', 50)" hint="Evita que o crédito zere o atendimento." />
+                <x-form.input name="s[referral_credit_valid_days]" type="number" min="0" max="365" label="Validade dos créditos (dias)" :value="$settings->get('referral.credit_valid_days', 90)" hint="0 = sem validade." />
+                <x-form.input name="s[referral_min_referrer_balance]" type="number" min="0" label="Mínimo do indicador (centavos)" :value="$settings->get('referral.min_referrer_balance', 0)" hint="Não emite crédito do indicador abaixo deste valor." />
+            </div>
+            <div class="mt-5">
+                <x-form.textarea name="s[referral_message]" label="Mensagem para o indicado" :value="$settings->get('referral.message')" rows="2" hint="Exibida na página do cliente quando ele vê o próprio código." />
+            </div>
+        </section>
+
+        <section id="marketing" class="card scroll-mt-24">
+            <h2 class="font-semibold">Medição e marketing</h2>
+            <p class="mt-1 text-sm text-stone">Opcional. Quando preenchidos, o site exibe o banner de consentimento e só carrega os scripts após o aceite.</p>
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                <x-form.input name="s[marketing_ga4_id]" label="Google Analytics 4 (G-XXXX)" :value="$s('marketing.ga4_id')" />
+                <x-form.input name="s[marketing_meta_pixel_id]" label="Meta Pixel ID" :value="$s('marketing.meta_pixel_id')" inputmode="numeric" />
+            </div>
+        </section>
+
+        <div class="sticky bottom-4 flex justify-end"><button class="btn-dark shadow-lg">Salvar configurações</button></div>
+    </form>
+</x-layouts.admin>

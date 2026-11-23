@@ -1,0 +1,6 @@
+# hPanel > Avançado > Cron Jobs > "Personalizado" — a cada minuto (* * * * *)
+# Ajuste o caminho do PHP (versão escolhida no hPanel) e do usuário.
+/usr/bin/php /home/SEU_USUARIO/zero1/artisan schedule:run >> /dev/null 2>&1
+
+# Se o hPanel não permitir "a cada minuto", use a menor frequência disponível;
+# o agendador recupera tarefas atrasadas, mas e-mails da fila sairão com esse atraso.
