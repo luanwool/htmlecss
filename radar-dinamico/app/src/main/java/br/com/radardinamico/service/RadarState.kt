@@ -9,4 +9,7 @@ object RadarState {
     val running = MutableStateFlow(false)
     val lastScreenReadAt = MutableStateFlow<Long?>(null)
     val lastCommunitySync = MutableStateFlow<String?>(null)
+    /** Diagnóstico do leitor: o que foi lido na última varredura e onde (para calibrar). */
+    val readerDebug = MutableStateFlow<List<String>>(emptyList())
+    val lastUberNotification = MutableStateFlow<String?>(null)
 }

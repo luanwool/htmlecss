@@ -76,8 +76,17 @@ class RadarService : Service(), LocationListener {
         }
     }
 
+    private var lastMoveEvalAt = 0L
+
     override fun onLocationChanged(location: Location) {
         RadarState.location.value = GeoPoint(location.latitude, location.longitude)
+        // Reavalia ao se deslocar: zonas vistas antes (ex.: antes de aceitar a corrida) entram no
+        // raio conforme você anda, mesmo sem o mapa do Uber na tela.
+        val now = System.currentTimeMillis()
+        if (now - lastMoveEvalAt > 20_000 && RadarState.running.value) {
+            lastMoveEvalAt = now
+            scope.launch { evaluate() }
+        }
     }
 
     private fun startLoops() {

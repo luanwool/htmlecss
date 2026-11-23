@@ -94,7 +94,7 @@ fun SettingsScreen(modifier: Modifier) {
                         set { it.copy(minMultiplier = (v * 10).roundToInt() / 10.0) }
                     }
                 }
-                SliderRow("Validade da leitura", "${s.freshnessMin} min", s.freshnessMin.toFloat(), 2f..30f, 27) { v ->
+                SliderRow("Validade da leitura", "${s.freshnessMin} min", s.freshnessMin.toFloat(), 5f..60f, 10) { v ->
                     set { it.copy(freshnessMin = v.roundToInt()) }
                 }
                 SliderRow("Intervalo entre alertas da mesma região", "${s.cooldownMin} min", s.cooldownMin.toFloat(), 1f..30f, 28) { v ->
@@ -153,6 +153,15 @@ fun SettingsScreen(modifier: Modifier) {
                         Text(if (isReaderEnabled(ctx)) "Leitor ativo — abrir Acessibilidade" else "Ativar leitor em Acessibilidade")
                     }
                 }
+                ToggleRow("Ler avisos do Uber Driver",
+                    "Notificações de demanda alta do próprio Uber — funcionam durante a corrida, com o mapa fora da tela", s.sourceUberNotifications) { v ->
+                    set { it.copy(sourceUberNotifications = v) }
+                }
+                if (s.sourceUberNotifications) {
+                    TextButton(onClick = { ctx.startActivity(Intent(AndroidSettings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }) {
+                        Text(if (isNotificationReaderEnabled(ctx)) "Acesso às notificações ativo" else "Permitir acesso às notificações")
+                    }
+                }
                 ToggleRow("Receber da comunidade", "Dinâmicos compartilhados por outros motoristas (requer servidor)", s.sourceCommunity) { v ->
                     set { it.copy(sourceCommunity = v) }
                 }
@@ -172,6 +181,30 @@ fun SettingsScreen(modifier: Modifier) {
                         set { it.copy(pollSeconds = v.roundToInt()) }
                     }
                 }
+            }
+        }
+
+        item {
+            val debug by br.com.radardinamico.service.RadarState.readerDebug.collectAsState()
+            SectionCard("Calibração do leitor (distância das zonas)") {
+                Text(
+                    "O app calcula onde fica cada zona pela posição do rótulo no mapa do Uber. " +
+                        "Se as distâncias parecerem curtas ou longas demais, ajuste o zoom. Use o mapa do Uber " +
+                        "com o norte para cima e centralizado no seu carro.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,
+                )
+                SliderRow("Zoom do mapa do Uber", "%.1f".format(s.mapZoom).replace('.', ','), s.mapZoom.toFloat(), 11f..17f, 11) { v ->
+                    set { it.copy(mapZoom = (v * 2).roundToInt() / 2.0) }
+                }
+                Text("Maior = mapa mais aproximado = zonas mais perto de você.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                SliderRow("Altura do seu carro na tela", "${s.carYPercent}% do topo", s.carYPercent.toFloat(), 20f..80f, 11) { v ->
+                    set { it.copy(carYPercent = v.roundToInt()) }
+                }
+                Spacer(Modifier.height(8.dp))
+                Text("Última leitura da tela", fontWeight = FontWeight.SemiBold)
+                if (debug.isEmpty()) Text("Nada lido ainda.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                debug.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
         }
 

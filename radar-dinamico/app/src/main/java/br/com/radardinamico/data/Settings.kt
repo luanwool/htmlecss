@@ -12,7 +12,7 @@ data class Settings(
     val useMultiplier: Boolean = true,     // também alertar por multiplicador
     val minMultiplier: Double = 1.5,
     val radiusKm: Double = 5.0,
-    val freshnessMin: Int = 10,            // por quanto tempo uma leitura é considerada válida
+    val freshnessMin: Int = 15,            // por quanto tempo uma leitura é considerada válida
     val cooldownMin: Int = 5,              // intervalo mínimo entre alertas da mesma região
     // Horário
     val scheduleEnabled: Boolean = false,
@@ -28,6 +28,10 @@ data class Settings(
     val suggestionIntervalMin: Int = 30,
     // Fontes de dados
     val sourceUberScreen: Boolean = true,
+    val sourceUberNotifications: Boolean = true, // ler notificações do Uber Driver (ex.: "alta demanda")
+    // Calibração do leitor de tela (posição do rótulo no mapa -> coordenada)
+    val mapZoom: Double = 14.0,
+    val carYPercent: Int = 45,
     val sourceCommunity: Boolean = false,
     val communityUrl: String = "",
     val shareToCommunity: Boolean = false,
@@ -63,6 +67,9 @@ object SettingsStore {
             suggestionsEnabled = p.getBoolean("suggestionsEnabled", d.suggestionsEnabled),
             suggestionIntervalMin = p.getInt("suggestionIntervalMin", d.suggestionIntervalMin),
             sourceUberScreen = p.getBoolean("sourceUberScreen", d.sourceUberScreen),
+            sourceUberNotifications = p.getBoolean("sourceUberNotifications", d.sourceUberNotifications),
+            mapZoom = p.getFloat("mapZoom", d.mapZoom.toFloat()).toDouble(),
+            carYPercent = p.getInt("carYPercent", d.carYPercent),
             sourceCommunity = p.getBoolean("sourceCommunity", d.sourceCommunity),
             communityUrl = p.getString("communityUrl", d.communityUrl) ?: "",
             shareToCommunity = p.getBoolean("shareToCommunity", d.shareToCommunity),
@@ -91,6 +98,9 @@ object SettingsStore {
             .putBoolean("suggestionsEnabled", s.suggestionsEnabled)
             .putInt("suggestionIntervalMin", s.suggestionIntervalMin)
             .putBoolean("sourceUberScreen", s.sourceUberScreen)
+            .putBoolean("sourceUberNotifications", s.sourceUberNotifications)
+            .putFloat("mapZoom", s.mapZoom.toFloat())
+            .putInt("carYPercent", s.carYPercent)
             .putBoolean("sourceCommunity", s.sourceCommunity)
             .putString("communityUrl", s.communityUrl)
             .putBoolean("shareToCommunity", s.shareToCommunity)

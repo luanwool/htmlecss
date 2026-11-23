@@ -2,4 +2,5 @@
     <string name="app_name">Radar Dinâmico</string>
     <string name="reader_label">Radar Dinâmico — leitor do Uber Driver</string>
     <string name="reader_description">Lê apenas os textos visíveis no app Uber Driver para identificar valores de dinâmico (ex.: +R$ 6,00 ou 1,5x) e registrá-los com sua localização. O app não toca, clica nem altera nada no Uber. Os dados ficam no seu aparelho, a menos que você ative o compartilhamento com a comunidade.</string>
+    <string name="notif_label">Radar Dinâmico — avisos do Uber Driver</string>
 </resources>

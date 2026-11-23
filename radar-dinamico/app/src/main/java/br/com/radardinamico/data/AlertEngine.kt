@@ -46,8 +46,11 @@ object AlertEngine {
                 val p = GeoPoint(e.lat, e.lng)
                 AlertMatch(e, here?.let { Geo.distanceKm(it, p) }, Geo.cellOf(p))
             }
-            // sem GPS só alertamos leituras da própria tela (que são do local do motorista)
-            .filter { m -> m.distanceKm?.let { it <= s.radiusKm } ?: (m.event.source == SurgeSource.UBER_SCREEN) }
+            // sem GPS só alertamos leituras vindas do próprio Uber Driver
+            .filter { m ->
+                m.distanceKm?.let { it <= s.radiusKm }
+                    ?: (m.event.source == SurgeSource.UBER_SCREEN || m.event.source == SurgeSource.UBER_NOTIFICATION)
+            }
             .filter { m -> lastAlertByCell[m.cell]?.let { nowMs - it >= cooldownMs } ?: true }
             .maxWithOrNull(compareBy<AlertMatch> { normalized(it.event) }.thenBy { -(it.distanceKm ?: 0.0) })
     }

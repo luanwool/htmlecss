@@ -52,3 +52,6 @@ fun isReaderEnabled(ctx: Context): Boolean {
     ) ?: return false
     return enabled.split(':').any { it.contains(ctx.packageName) && it.contains(UberReaderService::class.java.simpleName) }
 }
+
+fun isNotificationReaderEnabled(ctx: Context): Boolean =
+    androidx.core.app.NotificationManagerCompat.getEnabledListenerPackages(ctx).contains(ctx.packageName)

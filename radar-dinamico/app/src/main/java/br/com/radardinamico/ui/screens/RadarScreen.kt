@@ -88,6 +88,8 @@ fun RadarScreen(modifier: Modifier, onOpenSettings: () -> Unit) {
         Build.VERSION.SDK_INT < 33 || granted(Manifest.permission.POST_NOTIFICATIONS)
     }
     val readerOn = remember(permTick) { isReaderEnabled(ctx) }
+    val notifReaderOn = remember(permTick) { isNotificationReaderEnabled(ctx) }
+    val uberNotif by RadarState.lastUberNotification.collectAsState()
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         permTick++
@@ -174,6 +176,13 @@ fun RadarScreen(modifier: Modifier, onOpenSettings: () -> Unit) {
                         else lastRead?.let { "Última leitura ${timeAgo(it, tick)}" } ?: "Ativo — abra o Uber Driver",
                     ) { ctx.startActivity(Intent(AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS)) }
                 }
+                if (settings.sourceUberNotifications) {
+                    StatusRow(
+                        notifReaderOn, "Avisos do Uber (durante corridas)",
+                        if (!notifReaderOn) "Toque para permitir acesso às notificações"
+                        else uberNotif?.let { "Último: ${it.take(60)}" } ?: "Ativo — aguardando avisos de demanda",
+                    ) { ctx.startActivity(Intent(AndroidSettings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+                }
                 if (settings.sourceCommunity) {
                     StatusRow(community?.startsWith("Falha") != true, "Comunidade", community ?: "Aguardando sincronização")
                 }
@@ -226,7 +235,11 @@ fun RadarScreen(modifier: Modifier, onOpenSettings: () -> Unit) {
                     )
                     Column(Modifier.weight(1f)) {
                         Text(
-                            dist?.let { "${Geo.formatKm(it)} • ${Geo.cardinal(here!!, GeoPoint(e.lat, e.lng))}" } ?: "Sem GPS",
+                            when {
+                                dist == null -> "Sem GPS"
+                                dist < 0.15 -> "No seu local"
+                                else -> "${Geo.formatKm(dist)} • ${Geo.cardinal(here!!, GeoPoint(e.lat, e.lng))}"
+                            },
                             fontWeight = FontWeight.SemiBold,
                         )
                         Text("${e.source.label} • ${timeAgo(e.timestamp, tick)}",

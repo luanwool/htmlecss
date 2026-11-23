@@ -19,7 +19,12 @@ import br.com.radardinamico.data.AlertMatch
 import br.com.radardinamico.data.Geo
 import br.com.radardinamico.data.HotSpot
 import br.com.radardinamico.data.Settings
+import java.util.Calendar
 import java.util.Locale
+
+private object AlertEngineGate {
+    fun allowedNow(s: Settings) = br.com.radardinamico.data.AlertEngine.withinSchedule(s, Calendar.getInstance())
+}
 
 object Notifier {
     const val CH_SERVICE = "radar_service"
@@ -75,12 +80,19 @@ object Notifier {
     @SuppressLint("MissingPermission")
     fun alert(ctx: Context, s: Settings, m: AlertMatch) {
         val e = m.event
-        val dist = m.distanceKm?.let { Geo.formatKm(it) }
-        val dir = RadarState.location.value?.let { Geo.cardinal(it, br.com.radardinamico.data.GeoPoint(e.lat, e.lng)) }
-        val title = "Dinâmico ${e.label()}" + (dist?.let { " a $it" } ?: "")
+        val target = br.com.radardinamico.data.GeoPoint(e.lat, e.lng)
+        val near = m.distanceKm != null && m.distanceKm < 0.15
+        val dist = m.distanceKm?.let { if (near) null else Geo.formatKm(it) }
+        val dir = if (near) null else RadarState.location.value?.let { Geo.cardinal(it, target) }
+        val title = "Dinâmico ${e.label()}" + when {
+            near -> " onde você está"
+            dist != null -> " a $dist"
+            else -> ""
+        }
         val body = buildString {
             append(e.source.label)
             dir?.let { append(" • direção $it") }
+            e.note?.let { if (e.source != br.com.radardinamico.data.SurgeSource.UBER_NOTIFICATION) append(" • $it") }
             append(" • raio ${s.radiusKm.toInt()} km")
         }
         val n = NotificationCompat.Builder(ctx, if (s.sound) CH_ALERT_SOUND else CH_ALERT_SILENT)
@@ -98,7 +110,7 @@ object Notifier {
         if (s.speak) speak(ctx, buildString {
             append("Dinâmico de ")
             append(spokenValue(e))
-            m.distanceKm?.let { append(", a ${spokenKm(it)}") }
+            m.distanceKm?.let { if (it >= 0.15) append(", a ${spokenKm(it)}") else append(", onde você está") }
         })
     }
 
@@ -117,6 +129,23 @@ object Notifier {
             .build()
         NotificationManagerCompat.from(ctx).notify(900, n)
         if (s.speak) speak(ctx, "Sugestão: região com $value$dist")
+    }
+
+    @SuppressLint("MissingPermission")
+    fun demandNotice(ctx: Context, s: Settings, text: String) {
+        if (!AlertEngineGate.allowedNow(s)) return
+        val n = NotificationCompat.Builder(ctx, if (s.sound) CH_ALERT_SOUND else CH_ALERT_SILENT)
+            .setSmallIcon(R.drawable.ic_stat_radar)
+            .setContentTitle("Uber avisou: demanda alta")
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(openAppIntent(ctx))
+            .build()
+        NotificationManagerCompat.from(ctx).notify(950, n)
+        if (s.vibrate) vibrate(ctx)
+        if (s.speak) speak(ctx, "Aviso do Uber: $text")
     }
 
     private fun spokenValue(e: br.com.radardinamico.data.SurgeEvent) = when (e.kind) {

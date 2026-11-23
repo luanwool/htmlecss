@@ -6,6 +6,7 @@ enum class SurgeKind { MONEY, MULTIPLIER }
 /** De onde veio a leitura. */
 enum class SurgeSource(val label: String) {
     UBER_SCREEN("Tela do Uber Driver"),
+    UBER_NOTIFICATION("Notificação do Uber"),
     MANUAL("Registro manual"),
     COMMUNITY("Comunidade"),
 }
